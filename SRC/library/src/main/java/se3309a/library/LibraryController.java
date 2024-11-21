@@ -6,9 +6,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -50,6 +52,8 @@ public class LibraryController implements Initializable {
     @FXML
     private Menu accountInfoMenu;
     @FXML
+    private MenuItem createUserAccountMenuItem;
+    @FXML
     private MenuItem availableAndCheckedOutBooksMenuItem;
     @FXML
     private MenuItem bookBorrowingHistoryMenuItem;
@@ -70,44 +74,81 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private String userAccountName;
-    public String DBPassword = "write password here";
+    public String DBPassword = "enter your password";
 
     // Aya
-    public void createUserAccount() throws Exception {
-        // load the fxml file (the UI elements)
-        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("createUserAccount-view.fxml"));
-        // create the root node
+    @FXML
+    public void createUserAccount(ActionEvent event) throws Exception {
+        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("createBorrowerAccount-view.fxml"));
         Parent newUser = fxmlLoader.load();
-        CreateBorrowerAccountController createBorrowerAccountController = (CreateBorrowerAccountController) fxmlLoader.getController();
+
+        CreateBorrowerAccountController createBorrowerAccountController = fxmlLoader.getController();
         createBorrowerAccountController.setLibraryController(this);
         createBorrowerAccountController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
                 new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
                 new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
-        // create new stage
+
+        // create new stage for the "Create Borrower Account" window
         Stage stage = new Stage();
         stage.setScene(new Scene(newUser));
-        // add icon to the About window
         stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
         stage.setTitle("Create Borrower Account");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
     }
 
+
+    // Enable admin-specific menu items
+    public void enableAdminMenuItems() {
+        staffMenu.setDisable(false); // Enable staff-related menu
+        manageUserAccountsMenu.setDisable(false); // Enable manage user account menu
+    }
+
+    // Disable admin-specific menu items
+    public void disableAdminMenuItems() {
+        staffMenu.setDisable(true); // Disable staff-related menu
+        manageUserAccountsMenu.setDisable(true); // Disable manage user account menu
+
+    }
+
+    public void enableBorrowerMenuItems() {
+        // Enable borrower-specific menu items
+        SearchingMenu.setDisable(false);
+        SearchAndHoldsMenuItem.setDisable(false);
+        reviewsMenu.setDisable(false);
+
+    }
+
+    public void disableBorrowerMenuItems() {
+        // Enable borrower-specific menu items
+        SearchingMenu.setDisable(true);
+        SearchAndHoldsMenuItem.setDisable(true);
+        reviewsMenu.setDisable(true);
+
+    }
+
+
+
     // Aya
     public void login() throws Exception {
         // load the fxml file (the UI elements)
-        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("login-View.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("login-View.fxml"));
         // create the root node
         Parent newUser = fxmlLoader.load();
-        LoginController loginController = (LoginController) fxmlLoader.getController();
+        LoginController loginController = fxmlLoader.getController();
+
+        // Pass the current LibraryController instance to the LoginController
         loginController.setLibraryController(this);
+
+        // Set the data store
         loginController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
                 new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
                 new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+
         // create new stage
         Stage stage = new Stage();
         stage.setScene(new Scene(newUser));
@@ -117,6 +158,12 @@ public class LibraryController implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
     }
+
+//    public void showLibraryScreen() {
+//        // Logic to show the main library screen after a successful login
+//        System.out.println("Login successful. Opening the main library screen...");
+//        // Open the library dashboard, for example
+//    }
 
     // Melike
     public void calculateAvailableAndCheckedOutBooks() throws Exception{
@@ -475,6 +522,7 @@ public class LibraryController implements Initializable {
         }
     }
 
+
     public String getDBPassword(){
         return DBPassword;
     }
@@ -500,6 +548,7 @@ public class LibraryController implements Initializable {
             displayAlert(ex.getMessage());
         }
     }
+
 
 
 

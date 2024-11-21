@@ -11,7 +11,9 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.sql.SQLException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.*;
 import java.util.ResourceBundle;
 
 /**
@@ -69,6 +71,92 @@ public class LoginController implements Initializable {
         historyLogTable = historyLog;
         finesTable = fines;
     }
+
+
+    @FXML
+    public void login() {
+        String enteredUser = user.getText().trim();
+        String enteredPassword = password.getText().trim();
+
+        try (Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword())) {
+
+            // Check staff table
+            String staffSql = "SELECT jobType FROM staff WHERE sEmail = ? AND sPassword = ?";
+            PreparedStatement staffStatement = connection.prepareStatement(staffSql);
+            staffStatement.setString(1, enteredUser);
+            staffStatement.setString(2, enteredPassword);
+            ResultSet staffResultSet = staffStatement.executeQuery();
+
+            if (staffResultSet.next()) {
+                String userRole = staffResultSet.getString("jobType");
+                if ("admin".equalsIgnoreCase(userRole)) {
+                    libraryController.enableAdminMenuItems();
+                    libraryController.disableBorrowerMenuItems();
+                } else {
+                    libraryController.enableAdminMenuItems(); // Adjust based on staff type logic
+                }
+            } else {
+                // Check borrower table
+                String borrowerSql = "SELECT borrowerID FROM borrower WHERE bEmail = ? AND bPassword = ?";
+                PreparedStatement borrowerStatement = connection.prepareStatement(borrowerSql);
+                borrowerStatement.setString(1, enteredUser);
+                borrowerStatement.setString(2, enteredPassword);
+                ResultSet borrowerResultSet = borrowerStatement.executeQuery();
+
+                if (borrowerResultSet.next()) {
+                    libraryController.enableBorrowerMenuItems();
+                    libraryController.disableAdminMenuItems();
+                } else {
+                    errorMsg.setText("Invalid credentials. Please try again.");
+                    return;
+                }
+            }
+
+            // Close the login window after successful login
+            Stage stage = (Stage) saveBtn.getScene().getWindow();
+            stage.close();
+
+        } catch (SQLException e) {
+            errorMsg.setText("Database error: " + e.getMessage());
+        }
+    }
+
+
+    private void closeLoginWindow() {
+        Stage stage = (Stage) saveBtn.getScene().getWindow();
+        stage.close();
+    }
+
+    private boolean authenticateUser(String username, String password) {
+        try (Connection connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword())) {
+
+            // Query to check if the username exists and matches the password directly
+            String sql = "SELECT sPassword FROM staff WHERE sEmail = ?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, username);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedPassword = resultSet.getString("sPassword");
+                System.out.println("Stored password: " + storedPassword);
+                System.out.println("Entered password: " + password);
+                return password.equals(storedPassword); // Compare passwords
+            } else {
+                System.out.println("No user found with email: " + username);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Authentication failed
+    }
+
+
     public void cancel() {
         // Get current stage reference
         Stage stage = (Stage) cancelBtn.getScene().getWindow();

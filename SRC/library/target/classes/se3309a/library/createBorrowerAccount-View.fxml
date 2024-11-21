@@ -44,9 +44,9 @@
                </VBox.margin>
                <children>
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Employee ID" textAlignment="RIGHT" />
-                  <ComboBox fx:id="id" onAction="#getProfile" prefWidth="150.0" promptText="Select ID" GridPane.columnIndex="1" />
+<!--                  <ComboBox fx:id="id" onAction="#getProfile" prefWidth="150.0" promptText="Select ID" GridPane.columnIndex="1" />-->
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Full Name" GridPane.rowIndex="2" />
-                  <TextField fx:id="fullName" disable="true" editable="false" onAction="#createAccount" onMouseClicked="#clearErrorMsg" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+<!--                  <TextField fx:id="fullName" disable="true" editable="false" onAction="#createAccount" onMouseClicked="#clearErrorMsg" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Email" GridPane.rowIndex="4" />
                   <TextField fx:id="email" onMouseClicked="#clearErrorMsg" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Username" GridPane.rowIndex="5" />
@@ -68,7 +68,7 @@
              <HBox alignment="CENTER_RIGHT" prefHeight="30.0" prefWidth="426.0" spacing="50.0">
                <children>
                   <Button fx:id="cancelBtn" mnemonicParsing="false" onAction="#cancel" prefHeight="26.0" prefWidth="60.0" text="Cancel" />
-                  <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#createAccount" prefHeight="26.0" prefWidth="60.0" text="Save" />
+                  <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#saveBtnAction" prefHeight="26.0" prefWidth="60.0" text="Save" />
                </children>
                <VBox.margin>
                   <Insets bottom="20.0" top="20.0" />

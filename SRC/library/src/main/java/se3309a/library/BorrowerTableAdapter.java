@@ -1,52 +1,114 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BorrowerTableAdapter implements DataStore{
     private Connection connection;
     LibraryController libraryController = new LibraryController();
-    //private String DB_URL = "jdbc:mysql://localhost:3306/library";
-    public BorrowerTableAdapter(Boolean reset) throws SQLException {
+    private String DB_URL = "jdbc:mysql://localhost:3306/library";
+
+
+        public BorrowerTableAdapter(Boolean reset) throws SQLException {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+            Statement stmt = connection.createStatement();
+
+            if (reset) {
+                try {
+                    // Drop the borrower table if it exists
+                    stmt.execute("DROP TABLE borrower");
+                } catch (SQLException ex) {
+                    // Ignore errors if the table doesn't exist
+                }
+            }
+
+            try {
+                // Create the borrower table
+                String command = "CREATE TABLE borrower ("
+                        + "borrowerID INT NOT NULL AUTO_INCREMENT,"
+                        + "membershipDate DATE NOT NULL,"
+                        + "bPassword VARCHAR(255) NOT NULL,"
+                        + "bEmail VARCHAR(255) UNIQUE NOT NULL,"
+                        + "PRIMARY KEY (borrowerID)"
+                        + ")";
+                stmt.execute(command);
+            } catch (SQLException ex) {
+                // Ignore errors if the table already exists
+            }
+
+            connection.close();
+        }
+    // Additional methods (insert, retrieve, update, delete, etc.)
+    public void insertBorrower(Borrower borrower) throws SQLException {
         connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/library",
                 "root",
                 libraryController.getDBPassword());
-        Statement stmt = connection.createStatement();
-        if (reset) {
-            try {
-                // Remove tables if database tables have been created.
-                // This will throw an exception if the tables do not exist
-                stmt.execute("DROP TABLE borrower");
-            } catch (SQLException ex) {
-                // No need to report an error.
-                // The table simply did not exist.
-            }
+        String command = "INSERT INTO borrower (membershipDate, bPassword, bEmail) VALUES (?, ?, ?)";
+        PreparedStatement stmt = connection.prepareStatement(command, Statement.RETURN_GENERATED_KEYS);
+
+        stmt.setDate(1, borrower.getMembershipDate());
+        stmt.setString(2, borrower.getbPassword());
+        stmt.setString(3, borrower.getbEmail());
+        stmt.executeUpdate();
+
+        // Retrieve and set the generated borrowerID
+        ResultSet keys = stmt.getGeneratedKeys();
+        if (keys.next()) {
+            borrower.setBorrowerID(keys.getInt(1));
         }
-        try {
-            String command = "CREATE TABLE borrower ("
-                    + "borrowerID INT NOT NULL AUTO_INCREMENT,"
-                    + "membershipDate DATE NOT NULL,"
-                    + "bPassword VARCHAR(255) NOT NULL,"
-                    + "bEmail VARCHAR(255) UNIQUE NOT NULL,"
-                    + "PRIMARY KEY (borrowerID)"
-                    + ")";
-            // Create the table
-            stmt.execute(command);
-        } catch (SQLException ex) {
-            // No need to report an error.
-            // The table exists and may have some data.
-            // We will use it instead of creating a new one.
-        }
+
+        stmt.close();
         connection.close();
     }
 
+
+    public boolean isEmailRegistered(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) AS count FROM borrower WHERE bEmail = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "a560560560");
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, email);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt("count") > 0; // Email exists if count > 0
+            }
+        }
+        return false; // Email does not exist
+    }
+
+    public Borrower getBorrower(int borrowerID) throws SQLException {
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        String command = "SELECT * FROM borrower WHERE borrowerID = ?";
+        PreparedStatement stmt = connection.prepareStatement(command);
+
+        stmt.setInt(1, borrowerID);
+        ResultSet rs = stmt.executeQuery();
+
+        Borrower borrower = null;
+        if (rs.next()) {
+            borrower = new Borrower();
+            borrower.setBorrowerID(rs.getInt("borrowerID"));
+            borrower.setMembershipDate(rs.getDate("membershipDate"));
+            borrower.setbPassword(rs.getString("bPassword"));
+            borrower.setbEmail(rs.getString("bEmail"));
+        }
+
+        rs.close();
+        stmt.close();
+        connection.close();
+
+        return borrower;
+    }
+
     // adds new record
-    @Override
+        @Override
     public void addNewRecord(Object data) throws SQLException {
         Borrower borrower = (Borrower) data;
         connection = DriverManager.getConnection(

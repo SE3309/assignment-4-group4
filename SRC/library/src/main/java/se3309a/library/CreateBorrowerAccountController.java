@@ -2,6 +2,7 @@ package se3309a.library;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -38,6 +39,7 @@ public class CreateBorrowerAccountController implements Initializable {
 
     @FXML
     private Button saveBtn;
+
 
     @FXML
     private TextField userName;
@@ -85,6 +87,59 @@ public class CreateBorrowerAccountController implements Initializable {
         finesTable = fines;
     }
 
+    @FXML
+    private void saveBtnAction() {
+        saveBorrowerAccount();
+
+    }
+    public void saveBorrowerAccount() {
+        try {
+            // Validate inputs
+            String borrowerEmail = email.getText().trim();
+            String borrowerPassword1 = password1.getText().trim();
+            String borrowerPassword2 = password2.getText().trim();
+
+            if (borrowerEmail.isEmpty() || borrowerPassword1.isEmpty() || borrowerPassword2.isEmpty()) {
+                displayAlert("All fields are required!");
+                return;
+            }
+
+            if (!borrowerPassword1.equals(borrowerPassword2)) {
+                displayAlert("Passwords do not match!");
+                return;
+            }
+
+            // Check if the email already exists in the database
+            BorrowerTableAdapter borrowerAdapter = (BorrowerTableAdapter) borrowerTable;
+            if (borrowerAdapter.isEmailRegistered(borrowerEmail)) {
+                displayAlert("Email has an existing account!");
+                return;
+            }
+
+            // Create a Borrower object
+            Borrower borrower = new Borrower();
+            borrower.setbEmail(borrowerEmail);
+            borrower.setbPassword(borrowerPassword1);
+            borrower.setMembershipDate(new java.sql.Date(System.currentTimeMillis()));
+
+            // Insert borrower into the database
+            borrowerAdapter.insertBorrower(borrower);
+
+            // Show success message
+            displayAlert("Borrower account created successfully!");
+            clearForm();
+        } catch (SQLException ex) {
+            displayAlert("Error saving borrower: " + ex.getMessage());
+        }
+    }
+
+
+    private void clearForm() {
+        email.clear();
+        password1.clear();
+        password2.clear();
+    }
+
 
     public void cancel() {
         // Get current stage reference
@@ -93,25 +148,14 @@ public class CreateBorrowerAccountController implements Initializable {
         stage.close();
     }
 
-    private void displayAlert(String msg) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("alert-View.fxml"));
-            Parent ERROR = loader.load();
-            AlertController controller = (AlertController) loader.getController();
-
-            Scene scene = new Scene(ERROR);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-
-            stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
-            controller.setAlertText(msg);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-
-        } catch (IOException ex1) {
-
-        }
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Notification");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
+
 
     public void clearErrorMsg() {
         errorMsg.setText("");
@@ -124,8 +168,16 @@ public class CreateBorrowerAccountController implements Initializable {
 //            displayAlert("ERROR - employeeAdapter: " + ex.getMessage());
 //        }
     }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-//        id.setItems(data);
+        saveBtn.setOnAction(event -> saveBtnAction());
     }
+
+//    @Override
+//    public void initialize(URL url, ResourceBundle resourceBundle) {
+////        id.setItems(data);
+//    }
+
+
 }

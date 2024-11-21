@@ -9,6 +9,8 @@ import java.util.List;
 
 public class BorrowerContactTableAdapter implements DataStore{
     private Connection connection;
+
+
     LibraryController libraryController = new LibraryController();
     //private String DB_URL = "jdbc:mysql://localhost:3306/library";
     public BorrowerContactTableAdapter(Boolean reset) throws SQLException {
