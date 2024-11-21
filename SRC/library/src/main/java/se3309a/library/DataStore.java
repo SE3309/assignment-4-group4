@@ -12,11 +12,13 @@ public interface DataStore {
     // Get one specific record
     public Object findOneRecord(String key) throws SQLException;
     // Get one specific record by referenced table data
-    public Object findOneRecord(Object referencedObject) throws SQLException;
+    public Object findOneRecord(String key, String key2) throws SQLException;
     // Delete one specific record
     public void deleteOneRecord(String key) throws SQLException;
     // Delete a group of specific records by referenced table data
     public void deleteRecords(Object referencedObject) throws SQLException;
+    // check if key exists
+    public boolean isRegistered(String key) throws SQLException;
     // Get list of all data keys
     public List<String> getKeys() throws SQLException;
     // Get a list of all data records

@@ -43,10 +43,6 @@
                   <Insets left="20.0" right="20.0" top="10.0" />
                </VBox.margin>
                <children>
-                  <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Employee ID" textAlignment="RIGHT" />
-<!--                  <ComboBox fx:id="id" onAction="#getProfile" prefWidth="150.0" promptText="Select ID" GridPane.columnIndex="1" />-->
-                  <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Full Name" GridPane.rowIndex="2" />
-<!--                  <TextField fx:id="fullName" disable="true" editable="false" onAction="#createAccount" onMouseClicked="#clearErrorMsg" GridPane.columnIndex="1" GridPane.rowIndex="2" />-->
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Email" GridPane.rowIndex="4" />
                   <TextField fx:id="email" onMouseClicked="#clearErrorMsg" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <Label alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="110.0" text="Username" GridPane.rowIndex="5" />

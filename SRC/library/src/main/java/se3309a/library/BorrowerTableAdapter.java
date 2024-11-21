@@ -67,11 +67,11 @@ public class BorrowerTableAdapter implements DataStore{
     }
 
 
-    public boolean isEmailRegistered(String email) throws SQLException {
+    public boolean isRegistered(String key) throws SQLException {
         String sql = "SELECT COUNT(*) AS count FROM borrower WHERE bEmail = ?";
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "a560560560");
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", libraryController.getDBPassword());
              PreparedStatement statement = conn.prepareStatement(sql)) {
-            statement.setString(1, email);
+            statement.setString(1, key);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
                 return resultSet.getInt("count") > 0; // Email exists if count > 0
@@ -166,9 +166,30 @@ public class BorrowerTableAdapter implements DataStore{
         return borrower;
     }
     @Override
-    public Object findOneRecord(Object referencedObject) throws SQLException {
-        return null;
-    }
+    public Object findOneRecord(String key1, String key2) throws SQLException {
+        Borrower borrower = new Borrower();
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM borrower WHERE bEmail = '" + key1 + "' AND bPassword = '" + key2 + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+                borrower.setBorrowerID(rs.getInt("borrowerID"));
+            borrower.setMembershipDate(rs.getDate("membershipDate"));
+            borrower.setbEmail(rs.getString("bEmail"));
+            borrower.setbPassword(rs.getString("bPassword"));
+
+        }
+        connection.close();
+        return borrower;    }
 
     // Get a String list
     @Override
@@ -220,4 +241,6 @@ public class BorrowerTableAdapter implements DataStore{
     public List<Object> getAllRecords(Object referencedObject) throws SQLException {
         return null;
     }
+
+
 }

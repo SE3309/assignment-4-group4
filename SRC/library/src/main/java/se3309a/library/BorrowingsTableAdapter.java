@@ -114,7 +114,7 @@ public class BorrowingsTableAdapter implements DataStore{
         return borrowings;
     }
     @Override
-    public Object findOneRecord(Object referencedObject) throws SQLException {
+    public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
     }
 
@@ -167,5 +167,10 @@ public class BorrowingsTableAdapter implements DataStore{
     @Override
     public List<Object> getAllRecords(Object referencedObject) throws SQLException {
         return null;
+    }
+
+    @Override
+    public boolean isRegistered(String key) throws SQLException {
+        return false;
     }
 }

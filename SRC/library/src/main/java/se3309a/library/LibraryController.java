@@ -6,7 +6,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
@@ -74,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private String userAccountName;
-    public String DBPassword = "enter your password";
+    public String DBPassword = "enter password here";
 
     // Aya
     @FXML
@@ -98,38 +97,6 @@ public class LibraryController implements Initializable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
     }
-
-
-    // Enable admin-specific menu items
-    public void enableAdminMenuItems() {
-        staffMenu.setDisable(false); // Enable staff-related menu
-        manageUserAccountsMenu.setDisable(false); // Enable manage user account menu
-    }
-
-    // Disable admin-specific menu items
-    public void disableAdminMenuItems() {
-        staffMenu.setDisable(true); // Disable staff-related menu
-        manageUserAccountsMenu.setDisable(true); // Disable manage user account menu
-
-    }
-
-    public void enableBorrowerMenuItems() {
-        // Enable borrower-specific menu items
-        SearchingMenu.setDisable(false);
-        SearchAndHoldsMenuItem.setDisable(false);
-        reviewsMenu.setDisable(false);
-
-    }
-
-    public void disableBorrowerMenuItems() {
-        // Enable borrower-specific menu items
-        SearchingMenu.setDisable(true);
-        SearchAndHoldsMenuItem.setDisable(true);
-        reviewsMenu.setDisable(true);
-
-    }
-
-
 
     // Aya
     public void login() throws Exception {
@@ -431,22 +398,24 @@ public class LibraryController implements Initializable {
         staffMenu.setDisable(false);
         manageUserAccountsMenu.setDisable(false);
         userMenuItem.setVisible(true);
+        createUserAccountMenuItem.setDisable(false);
     }
 
-    public void enableEmployeeControls() {
+    public void enableBorrowerControls() {
         // Off
         staffMenu.setDisable(true);
         loginMenuItem.setDisable(true);
         manageUserAccountsMenu.setDisable(true);
+        createUserAccountMenuItem.setDisable(true);
 
         // On
         fileMenu.setDisable(false);
         logoutMenuItem.setDisable(false);
         mainMenu.setDisable(false);
         closeMenuItem.setDisable(false);
-        SearchingMenu.setDisable(true);
-        reviewsMenu.setDisable(true);
-        accountInfoMenu.setDisable(true);
+        SearchingMenu.setDisable(false);
+        reviewsMenu.setDisable(false);
+        accountInfoMenu.setDisable(false);
         userMenuItem.setVisible(true);
 
     }
@@ -460,6 +429,7 @@ public class LibraryController implements Initializable {
         logoutMenuItem.setDisable(true);
         userMenuItem.setVisible(false);
         manageUserAccountsMenu.setDisable(true);
+        createUserAccountMenuItem.setDisable(false);
 
         // On
         fileMenu.setDisable(false);
@@ -541,7 +511,6 @@ public class LibraryController implements Initializable {
                     "jdbc:mysql://localhost:3306/library",
                     "root",
                     DBPassword);
-            // Create the administrator data if it is not already in the database
             new StaffTableAdapter(false);
 
         } catch (SQLException ex) {

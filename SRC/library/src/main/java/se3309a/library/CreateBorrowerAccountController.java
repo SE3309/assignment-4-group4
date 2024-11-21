@@ -110,25 +110,23 @@ public class CreateBorrowerAccountController implements Initializable {
             }
 
             // Check if the email already exists in the database
-            BorrowerTableAdapter borrowerAdapter = (BorrowerTableAdapter) borrowerTable;
-            if (borrowerAdapter.isEmailRegistered(borrowerEmail)) {
+            if (borrowerTable.isRegistered(borrowerEmail)) {
                 displayAlert("Email has an existing account!");
                 return;
             }
-
             // Create a Borrower object
             Borrower borrower = new Borrower();
             borrower.setbEmail(borrowerEmail);
             borrower.setbPassword(borrowerPassword1);
             borrower.setMembershipDate(new java.sql.Date(System.currentTimeMillis()));
-
             // Insert borrower into the database
-            borrowerAdapter.insertBorrower(borrower);
+            borrowerTable.addNewRecord(borrower);
 
             // Show success message
             displayAlert("Borrower account created successfully!");
             clearForm();
         } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
             displayAlert("Error saving borrower: " + ex.getMessage());
         }
     }
@@ -136,6 +134,7 @@ public class CreateBorrowerAccountController implements Initializable {
 
     private void clearForm() {
         email.clear();
+        userName.clear();
         password1.clear();
         password2.clear();
     }

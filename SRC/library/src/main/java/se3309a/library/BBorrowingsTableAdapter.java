@@ -99,11 +99,16 @@ public class BBorrowingsTableAdapter implements DataStore{
         return bBorrowings;
     }
     @Override
-    public Object findOneRecord(Object referencedObject) throws SQLException {
+    public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
     }
 
-    // Get a String list
+    @Override
+    public boolean isRegistered(String key) throws SQLException {
+        return false;
+    }
+
+        // Get a String list
     @Override
     public List<String> getKeys() throws SQLException {
         List<String> list = new ArrayList<>();

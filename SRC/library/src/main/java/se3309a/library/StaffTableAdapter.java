@@ -1,9 +1,6 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,30 +79,32 @@ public class StaffTableAdapter implements DataStore{
 
     // get one record, that matches the given value
     @Override
-    public Object findOneRecord(String key) throws SQLException {
-        Staff staff = new Staff();
+    public Object findOneRecord(String key1, String key2) throws SQLException {
+        Staff libStaff = new Staff();
 
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
-        return staff;
+        ResultSet rs;
+          connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM staff WHERE sEmail = '" + key1 + "' AND sPassword = '" + key2 + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            libStaff.setStaffID(rs.getInt("staffID"));
+            libStaff.setsEmail(rs.getString("sEmail"));
+            libStaff.setsPassword(rs.getString("sPassword"));
+            libStaff.setJobType(rs.getString("jobType"));
+        }
+        connection.close();
+        return libStaff;
     }
     @Override
-    public Object findOneRecord(Object referencedObject) throws SQLException {
+    public Object findOneRecord(String key) throws SQLException {
         return null;
     }
 
@@ -158,5 +157,10 @@ public class StaffTableAdapter implements DataStore{
     @Override
     public List<Object> getAllRecords(Object referencedObject) throws SQLException {
         return null;
+    }
+
+    @Override
+    public boolean isRegistered(String key) throws SQLException {
+        return false;
     }
 }

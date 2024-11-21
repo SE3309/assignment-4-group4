@@ -28,9 +28,9 @@
             </ImageView>
                   <GridPane prefHeight="72.0" prefWidth="202.0" vgap="20.0">
                       <children>
-                          <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                          <Label text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                           <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                          <TextField fx:id="user" onMouseClicked="#clearErrorMsg" promptText="Enter your username " GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                          <TextField fx:id="user" onMouseClicked="#clearErrorMsg" promptText="Enter your email " GridPane.columnIndex="1" GridPane.rowIndex="0" />
                           <PasswordField fx:id="password" onMouseClicked="#clearErrorMsg" promptText="Enter your password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                       </children>
                       <columnConstraints>
