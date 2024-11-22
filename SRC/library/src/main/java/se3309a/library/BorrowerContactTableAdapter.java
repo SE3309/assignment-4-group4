@@ -107,6 +107,11 @@ public class BorrowerContactTableAdapter implements DataStore{
         return null;
     }
 
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
+    }
+
     // Get a String list
     @Override
     public List<String> getKeys() throws SQLException {

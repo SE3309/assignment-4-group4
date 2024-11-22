@@ -11,6 +11,7 @@ public interface DataStore {
     public void updateRecord(Object data) throws SQLException;
     // Get one specific record
     public Object findOneRecord(String key) throws SQLException;
+    public Object findOneRecord2(String key) throws SQLException;
     // Get one specific record by referenced table data
     public Object findOneRecord(String key, String key2) throws SQLException;
     // Delete one specific record

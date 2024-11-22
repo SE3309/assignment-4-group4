@@ -107,7 +107,10 @@ public class StaffTableAdapter implements DataStore{
     public Object findOneRecord(String key) throws SQLException {
         return null;
     }
-
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
+    }
     // Get a String list
     @Override
     public List<String> getKeys() throws SQLException {

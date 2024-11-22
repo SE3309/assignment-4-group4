@@ -101,6 +101,10 @@ public class BookAuthorTableAdapter implements DataStore{
         return bookAuthor;
     }
     @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
+    }
+    @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
     }

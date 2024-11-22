@@ -111,7 +111,10 @@ public class HistoryLogTableAdapter implements DataStore{
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
     }
-
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
+    }
     // Get a String list
     @Override
     public List<String> getKeys() throws SQLException {

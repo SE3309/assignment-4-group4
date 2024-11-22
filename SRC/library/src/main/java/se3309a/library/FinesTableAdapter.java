@@ -1,9 +1,6 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +56,7 @@ public class FinesTableAdapter implements DataStore{
         String command = "INSERT INTO fines ( fineID, borrowerID, dueDate, datePaid) "
                 + "VALUES ('"
                 + fines.getFineID() + "', '"
-                + fines.getBorrower().getBorrowerID() + "', '"
+                + fines.getBorrower().getBorrowerID()+ "', '"
                 + fines.getDueDate() + "', '"
                 + fines.getDatePaid() + "')";
         int rows = stmt.executeUpdate(command);
@@ -85,9 +82,38 @@ public class FinesTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         Fines fines = new Fines();
+        Borrower borrower = new Borrower();
 
+        fines.setBorrower(borrower);
+
+        ResultSet rs;
+          connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM fines WHERE borrowerId = '" + key +"'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            fines.setFineID(rs.getInt("fineID"));
+            fines.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            fines.setDueDate(rs.getDate("dueDate"));
+            fines.setDatePaid(rs.getDate("datePaid"));
+        }
+        connection.close();
+        return fines;
+    }
+
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        Fines fines = new Fines();
+//
 //        ResultSet rs;
-//          connection = DriverManager.getConnection(
+//        connection = DriverManager.getConnection(
 //                "jdbc:mysql://localhost:3306/library",
 //                "root",
 //                libraryController.getDBPassword());
@@ -95,7 +121,7 @@ public class FinesTableAdapter implements DataStore{
 //        // Create a Statement object
 //        Statement stmt = connection.createStatement();
 //        // Create a string with a SELECT statement
-//        String command = "SELECT ";
+//        String command = "SELECT fineId, borrowerId, dueDate, datePaid FROM fines WHERE borrowerId = '" + key +"'";
 //        // Execute the statement and return the result
 //        rs = stmt.executeQuery(command);
 //        while (rs.next()) {

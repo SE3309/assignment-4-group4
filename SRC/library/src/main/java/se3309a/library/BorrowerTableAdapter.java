@@ -146,24 +146,32 @@ public class BorrowerTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         Borrower borrower = new Borrower();
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
+        ResultSet rs;
+          connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM borrower WHERE bEmail = '" + key +"'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrower.setBorrowerID(rs.getInt("borrowerID"));
+            borrower.setMembershipDate(rs.getDate("membershipDate"));
+            borrower.setbEmail(rs.getString("bEmail"));
+            borrower.setbPassword(rs.getString("bPassword"));
+
+        }
+        connection.close();
         return borrower;
+    }
+
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
     }
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {

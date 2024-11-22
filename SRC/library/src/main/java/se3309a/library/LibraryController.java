@@ -73,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private String userAccountName;
-    public String DBPassword = "enter password here";
+    public String DBPassword = "password";
 
     // Aya
     @FXML

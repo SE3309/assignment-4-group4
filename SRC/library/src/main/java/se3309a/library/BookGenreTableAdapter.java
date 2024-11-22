@@ -101,6 +101,11 @@ public class BookGenreTableAdapter implements DataStore{
 //        connection.close();
         return bookGenre;
     }
+
+    @Override
+    public Object findOneRecord2(String key) throws SQLException {
+        return null;
+    }
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
