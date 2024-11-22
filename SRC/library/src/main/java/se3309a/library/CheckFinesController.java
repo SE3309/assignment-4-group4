@@ -2,11 +2,11 @@ package se3309a.library;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -15,8 +15,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.net.URL;
 import java.sql.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class CheckFinesController implements Initializable {
@@ -38,22 +36,22 @@ public class CheckFinesController implements Initializable {
     final ObservableList<String> data = FXCollections.observableArrayList();
 
     @FXML
-    private TableColumn<Fines, Integer> fineIdColumn; // Fine ID column of type Integer
+    private TableColumn<Fines, Integer> fineIdColumn;
 
     @FXML
-    private TableColumn<Fines, Integer> borrowerIdColumn; // Borrower ID column of type Integer
+    private TableColumn<Fines, Integer> borrowerIdColumn;
 
     @FXML
-    private TableColumn<Fines, Date> dueDateColumn; // Due date column of type Date
+    private TableColumn<Fines, Date> dueDateColumn;
 
     @FXML
-    private TableColumn<Fines, Date> datePaidColumn; // Date Paid column of type Date
+    private TableColumn<Fines, Date> datePaidColumn;
 
     @FXML
-    private TableColumn<Fines, Double> fineAmountColumn; // Date Paid column of type Date
+    private TableColumn<Fines, Double> fineAmountColumn;
 
     @FXML
-    private TableView<Fines> fineTable; // TableView for Fines
+    private TableView<Fines> fineTable;
 
     @FXML
     private TextField emailField;
@@ -97,7 +95,7 @@ public class CheckFinesController implements Initializable {
             if (borrowerId != -1) {
                 System.out.println("Borrower ID: " + borrowerId);
 
-                // Now query the fines table using the borrowerId
+                // Query fines table using the borrowerId
                 loadFinesForBorrower(borrowerId);
             } else {
                 System.out.println("No borrower found with the email: " + enteredEmail);
@@ -110,22 +108,33 @@ public class CheckFinesController implements Initializable {
     private void loadFinesForBorrower(int borrowerId) throws SQLException {
         fine = (Fines) finesTable.findOneRecord(String.valueOf(borrowerId));
 
+        if (fine == null || fine.getFineID() <= 0) {
+            finesData.clear();
+            displayAlert("No fines found!");
+
+        } else{
             finesData.clear();  // Clear existing data before adding new fines
 
+            // Add the fine to the ObservableList
+            finesData.add(fine);
 
-
-                // Add the fine to the ObservableList
-                finesData.add(fine);
-
-                // Print the fine information to the console using the getter methods
-                System.out.println("Fine ID: " + fine.getFineID() +
-                        ", Borrower ID: " + fine.getBorrower().getBorrowerID() +
-                        ", Due Date: " + fine.getDueDate() +
-                        ", Date Paid: " + fine.getDatePaid());
+            // Print the fine information to the console using the getter methods
+            System.out.println("Fine ID: " + fine.getFineID() +
+                    ", Borrower ID: " + fine.getBorrower().getBorrowerID() +
+                    ", Due Date: " + fine.getDueDate() +
+                    ", Date Paid: " + fine.getDatePaid());
 
             // Set the data for the TableView
             fineTable.setItems(finesData);
+        }
+    }
 
+    private void displayAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     // Method to query the borrowerId from the borrower table (already defined)
