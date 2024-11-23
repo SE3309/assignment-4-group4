@@ -1,9 +1,6 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,26 +90,37 @@ public class BorrowingsTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         Borrowings borrowings = new Borrowings();
+        Borrower borrower = new Borrower();
+        Book book = new Book();
+        Fines fines = new Fines();
+        borrowings.setFine(fines);
+        borrowings.setBorrower(borrower);
+        borrowings.setBook(book);
 
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
-        return borrowings;
-    }
+            ResultSet rs;
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+            // Create a string with a SELECT statement
+            String command = "SELECT * FROM borrowings WHERE borrowerId = '" + key +"'";
+            // Execute the statement and return the result
+            rs = stmt.executeQuery(command);
+            while (rs.next()) {
+                borrowings.setBorrowingID(rs.getInt("borrowingID"));
+                borrowings.setBorrowDate(rs.getDate("borrowDate"));
+                borrowings.setReturnDate(rs.getDate("returnDate"));
+                borrowings.setStatus(rs.getString("status"));
+                borrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+                borrowings.getBook().setISBN(rs.getString("ISBN"));
+                borrowings.getFine().setFineID(rs.getInt("fineID"));
+            }
+            connection.close();
+            return borrowings;
+        }
 
     @Override
     public Object findOneRecord2(String key) throws SQLException {
