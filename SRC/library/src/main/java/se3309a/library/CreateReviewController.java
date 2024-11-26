@@ -2,11 +2,12 @@ package se3309a.library;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.Initializable;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class CreateReviewController {
+public class CreateReviewController implements Initializable {
     private DataStore bookTable;
     private DataStore bookAuthorTable;
     private DataStore bookGenreTable;
@@ -54,6 +55,7 @@ public class CreateReviewController {
         borrower.setBorrowerID(borrowerID);
     }
 
+    @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         borrower = new Borrower();
     }
