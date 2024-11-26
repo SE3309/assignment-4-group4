@@ -1,15 +1,13 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReviewsTableAdapter implements DataStore{
+public class ReviewsTableAdapter implements DataStore {
     private Connection connection;
     LibraryController libraryController = new LibraryController();
+
     //private String DB_URL = "jdbc:mysql://localhost:3306/library";
     public ReviewsTableAdapter(Boolean reset) throws SQLException {
         connection = DriverManager.getConnection(
@@ -90,34 +88,44 @@ public class ReviewsTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         Reviews reviews = new Reviews();
+        Borrower borrower = new Borrower();
+        Book book = new Book();
+        reviews.setBorrower(borrower);
+        reviews.setBook(book);
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
 
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM reviews WHERE borrowerId = '" + key + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            reviews.setReviewID(rs.getInt("reviewID"));
+            reviews.setReviewDate(rs.getDate("reviewDate"));
+            reviews.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            reviews.setReviewText(rs.getString("reviewText"));
+            reviews.setRating(rs.getInt("rating"));
+            reviews.getBook().setISBN(rs.getString("ISBN"));
+        }
+        connection.close();
         return reviews;
     }
+
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
     }
+
     @Override
     public Object findOneRecord2(String key) throws SQLException {
         return null;
     }
+
     // Get a String list
     @Override
     public List<Integer> getKeys() throws SQLException {
@@ -146,14 +154,16 @@ public class ReviewsTableAdapter implements DataStore{
 
     @Override
     public void deleteOneRecord(String key) throws SQLException {
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//        Statement stmt = connection.createStatement();
-//        stmt.executeUpdate("DELETE ");
-//        connection.close();
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM reviews WHERE borrowerID = '"
+                + key + "'");
+        connection.close();
     }
+
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {
 
@@ -173,6 +183,7 @@ public class ReviewsTableAdapter implements DataStore{
     public boolean isRegistered(String key) throws SQLException {
         return false;
     }
+
     @Override
     public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
         return null;

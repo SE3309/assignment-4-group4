@@ -228,13 +228,14 @@ public class BorrowingsTableAdapter implements DataStore {
 
     @Override
     public void deleteOneRecord(String key) throws SQLException {
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//        Statement stmt = connection.createStatement();
-//        stmt.executeUpdate("DELETE ");
-//        connection.close();
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM borrowings WHERE borrowerID = '"
+                + key + "'");
+        connection.close();
     }
 
     @Override

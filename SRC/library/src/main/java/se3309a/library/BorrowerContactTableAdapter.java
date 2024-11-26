@@ -1,9 +1,6 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +57,7 @@ public class BorrowerContactTableAdapter implements DataStore{
                 + "VALUES ('"
                 + borrowerContact.getBorrower().getbEmail() + "', '"
                 + borrowerContact.getName() + "')";
+        System.out.println(command);
         int rows = stmt.executeUpdate(command);
         connection.close();
     }
@@ -83,23 +81,25 @@ public class BorrowerContactTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         BorrowerContact borrowerContact = new BorrowerContact();
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
+        Borrower borrower = new Borrower();
+        borrowerContact.setBorrower(borrower);
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM borrowerContact WHERE bEmail = '" + key +"'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowerContact.getBorrower().setbEmail(rs.getString("bEmail"));
+            borrowerContact.setName(rs.getString("bName"));
+        }
+        connection.close();
         return borrowerContact;
     }
     @Override
@@ -140,13 +140,14 @@ public class BorrowerContactTableAdapter implements DataStore{
 
     @Override
     public void deleteOneRecord(String key) throws SQLException {
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//        Statement stmt = connection.createStatement();
-//        stmt.executeUpdate("DELETE ");
-//        connection.close();
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM borrowerContact WHERE bEmail = '"
+                + key + "'");
+        connection.close();
     }
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {

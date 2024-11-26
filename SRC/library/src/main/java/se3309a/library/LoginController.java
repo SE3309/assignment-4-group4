@@ -85,11 +85,14 @@ public class LoginController implements Initializable {
             Staff staff = (Staff) staffTable.findOneRecord(enteredUser, enteredPassword);
             if(staff.getsEmail()!=null) {
                 libraryController.enableAdminControls();
+                libraryController.setUserFullname("Staff");
+
             }else{
                 try {
                     Borrower borrower = (Borrower) borrowerTable.findOneRecord(enteredUser, enteredPassword);
                     if(borrower.getbEmail()!=null) {
                         libraryController.enableBorrowerControls();
+                        libraryController.setUserFullname(borrower.getbEmail());
                         libraryController.setBorrowerId(borrower.getBorrowerID());
                     }else{
                         errorMsg.setText("Invalid credentials. Please try again.");

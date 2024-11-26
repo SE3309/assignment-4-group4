@@ -164,13 +164,14 @@ public class FinesTableAdapter implements DataStore{
 
     @Override
     public void deleteOneRecord(String key) throws SQLException {
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//        Statement stmt = connection.createStatement();
-//        stmt.executeUpdate("DELETE ");
-//        connection.close();
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM fines WHERE borrowerID = '"
+                + key + "'");
+        connection.close();
     }
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {

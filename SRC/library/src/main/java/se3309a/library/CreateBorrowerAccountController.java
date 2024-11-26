@@ -116,11 +116,15 @@ public class CreateBorrowerAccountController implements Initializable {
             }
             // Create a Borrower object
             Borrower borrower = new Borrower();
+            BorrowerContact borrowerContact = new BorrowerContact();
             borrower.setbEmail(borrowerEmail);
             borrower.setbPassword(borrowerPassword1);
             borrower.setMembershipDate(new java.sql.Date(System.currentTimeMillis()));
+            borrowerContact.setBorrower(borrower);
+            borrowerContact.setName(userName.getText());
             // Insert borrower into the database
             borrowerTable.addNewRecord(borrower);
+            borrowerContactTable.addNewRecord(borrowerContact);
 
             // Show success message
             displayAlert("Borrower account created successfully!");

@@ -386,7 +386,7 @@ public class LibraryController implements Initializable {
 
     public void deleteUserAccount() throws Exception {
         // load the fxml file (the UI elements)
-        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("deleteUserAccount-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("deleteBorrowerAccount-view.fxml"));
         // create the root node
         Parent aUser = fxmlLoader.load();
         DeleteBorrowerAccountController deleteBorrowerAccountController = (DeleteBorrowerAccountController) fxmlLoader.getController();
@@ -409,7 +409,10 @@ public class LibraryController implements Initializable {
     public void logout() {
         disableMenuItems();
     }
-
+    // set the logged-in username into the menu item
+    public void setUserFullname(String name) {
+        userMenuItem.setText(name);
+    }
     public void enableAdminControls() {
         // Off
         SearchingMenu.setDisable(true);

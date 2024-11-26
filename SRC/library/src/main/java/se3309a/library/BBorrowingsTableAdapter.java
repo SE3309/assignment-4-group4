@@ -86,23 +86,30 @@ public class BBorrowingsTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         BBorrowings bBorrowings = new BBorrowings();
-//        ResultSet rs;
-//         connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
+        Borrower borrower = new Borrower();
+        Borrowings borrowings = new Borrowings();
+
+        bBorrowings.setBorrower(borrower);
+        bBorrowings.setBorrowings(borrowings);
+
+        ResultSet rs;
+         connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM bBorrowings WHERE borrowerID = '" + key +"'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            bBorrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            bBorrowings.getBorrowings().setBorrowingID(rs.getInt("borrowingID"));
+
+        }
+        connection.close();
         return bBorrowings;
     }
 
@@ -147,13 +154,14 @@ public class BBorrowingsTableAdapter implements DataStore{
 
     @Override
     public void deleteOneRecord(String key) throws SQLException {
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//        Statement stmt = connection.createStatement();
-//        stmt.executeUpdate("DELETE ");
-//        connection.close();
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+        Statement stmt = connection.createStatement();
+        stmt.executeUpdate("DELETE FROM bBorrowings WHERE borrowerID = '"
+                + key + "'");
+        connection.close();
     }
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {
