@@ -4,9 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BorrowingsTableAdapter implements DataStore{
+public class BorrowingsTableAdapter implements DataStore {
     private Connection connection;
     LibraryController libraryController = new LibraryController();
+
     //private String DB_URL = "jdbc:mysql://localhost:3306/library";
     public BorrowingsTableAdapter(Boolean reset) throws SQLException {
         connection = DriverManager.getConnection(
@@ -26,7 +27,7 @@ public class BorrowingsTableAdapter implements DataStore{
         }
         try {
             String command = "CREATE TABLE borrowings ("
-                    + "borrowingID INT NOT NULL AUTO_INCREMENT,"
+                    + "borrowingID INT NOT NULL,"
                     + "borrowDate DATE NOT NULL,"
                     + "returnDate DATE,"
                     + "status ENUM('On Hold', 'Returned', 'Late') NOT NULL,"
@@ -58,16 +59,51 @@ public class BorrowingsTableAdapter implements DataStore{
                 libraryController.getDBPassword());
 
         Statement stmt = connection.createStatement();
-        String command = "INSERT INTO borrowings ( borrowingID, borrowDate, returnDate, status, borrowerID, ISBN, fineID) "
-                + "VALUES ('"
-                + borrowings.getBorrowingID() + "', '"
-                + borrowings.getBorrowDate() + "', '"
-                + borrowings.getReturnDate() + "', '"
-                + borrowings.getStatus() + "', '"
-                + borrowings.getBorrower().getBorrowerID() + "', '"
-                + borrowings.getBook().getISBN() + "', '"
-                + borrowings.getFine().getFineID() + "')";
-        int rows = stmt.executeUpdate(command);
+        if (borrowings.getFine() == null && borrowings.getReturnDate() != null) {
+            String command = "INSERT INTO borrowings ( borrowingID, borrowDate, returnDate, status, borrowerID, ISBN, fineID) "
+                    + "VALUES ('"
+                    + borrowings.getBorrowingID() + "', '"
+                    + borrowings.getBorrowDate() + "', '"
+                    + borrowings.getReturnDate() + "', '"
+                    + borrowings.getStatus() + "', '"
+                    + borrowings.getBorrower().getBorrowerID() + "', '"
+                    + borrowings.getBook().getISBN() + "', NULL)";
+            int rows = stmt.executeUpdate(command);
+
+        } else if (borrowings.getReturnDate() == null && borrowings.getFine() != null) {
+            String command = "INSERT INTO borrowings ( borrowingID, borrowDate, returnDate, status, borrowerID, ISBN, fineID) "
+                    + "VALUES ('"
+                    + borrowings.getBorrowingID() + "', '"
+                    + borrowings.getBorrowDate() + "', NULL, '"
+                    + borrowings.getStatus() + "', '"
+                    + borrowings.getBorrower().getBorrowerID() + "', '"
+                    + borrowings.getBook().getISBN() + "', '"
+                    + borrowings.getFine().getFineID() + "')";
+            int rows = stmt.executeUpdate(command);
+        } else if (borrowings.getReturnDate() == null && borrowings.getReturnDate() == null) {
+            String command = "INSERT INTO borrowings ( borrowingID, borrowDate, returnDate, status, borrowerID, ISBN, fineID) "
+                    + "VALUES ("
+                    + borrowings.getBorrowingID() + ", '"
+                    + borrowings.getBorrowDate() + "', NULL, '"
+                    + borrowings.getStatus() + "', "
+                    + borrowings.getBorrower().getBorrowerID() + ", '"
+                    + borrowings.getBook().getISBN() + "', NULL)";
+            System.out.println(command);
+            int rows = stmt.executeUpdate(command);
+        } else {
+            String command = "INSERT INTO borrowings ( borrowingID, borrowDate, returnDate, status, borrowerID, ISBN, fineID) "
+                    + "VALUES ('"
+                    + borrowings.getBorrowingID() + "', '"
+                    + borrowings.getBorrowDate() + "', '"
+                    + borrowings.getReturnDate() + "', '"
+                    + borrowings.getStatus() + "', '"
+                    + borrowings.getBorrower().getBorrowerID() + "', '"
+                    + borrowings.getBook().getISBN() + "', '"
+                    + borrowings.getFine().getFineID() + "')";
+            int rows = stmt.executeUpdate(command);
+
+        }
+
         connection.close();
     }
 
@@ -93,39 +129,72 @@ public class BorrowingsTableAdapter implements DataStore{
         Borrower borrower = new Borrower();
         Book book = new Book();
         Fines fines = new Fines();
+
         borrowings.setFine(fines);
         borrowings.setBorrower(borrower);
         borrowings.setBook(book);
 
-            ResultSet rs;
-            connection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/library",
-                    "root",
-                    libraryController.getDBPassword());
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
 
-            // Create a Statement object
-            Statement stmt = connection.createStatement();
-            // Create a string with a SELECT statement
-            String command = "SELECT * FROM borrowings WHERE borrowerId = '" + key +"'";
-            // Execute the statement and return the result
-            rs = stmt.executeQuery(command);
-            while (rs.next()) {
-                borrowings.setBorrowingID(rs.getInt("borrowingID"));
-                borrowings.setBorrowDate(rs.getDate("borrowDate"));
-                borrowings.setReturnDate(rs.getDate("returnDate"));
-                borrowings.setStatus(rs.getString("status"));
-                borrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
-                borrowings.getBook().setISBN(rs.getString("ISBN"));
-                borrowings.getFine().setFineID(rs.getInt("fineID"));
-            }
-            connection.close();
-            return borrowings;
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM borrowings WHERE borrowerId = '" + key + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowings.setBorrowingID(rs.getInt("borrowingID"));
+            borrowings.setBorrowDate(rs.getDate("borrowDate"));
+            borrowings.setReturnDate(rs.getDate("returnDate"));
+            borrowings.setStatus(rs.getString("status"));
+            borrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            borrowings.getBook().setISBN(rs.getString("ISBN"));
+            borrowings.getFine().setFineID(rs.getInt("fineID"));
         }
+        connection.close();
+        return borrowings;
+    }
 
     @Override
     public Object findOneRecord2(String key) throws SQLException {
-        return null;
+        Borrowings borrowings = new Borrowings();
+        Borrower borrower = new Borrower();
+        Book book = new Book();
+        Fines fines = new Fines();
+
+        borrowings.setFine(fines);
+        borrowings.setBorrower(borrower);
+        borrowings.setBook(book);
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT * FROM borrowings WHERE ISBN = '" + key + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowings.setBorrowingID(rs.getInt("borrowingID"));
+            borrowings.setBorrowDate(rs.getDate("borrowDate"));
+            borrowings.setReturnDate(rs.getDate("returnDate"));
+            borrowings.setStatus(rs.getString("status"));
+            borrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            borrowings.getBook().setISBN(rs.getString("ISBN"));
+            borrowings.getFine().setFineID(rs.getInt("fineID"));
+        }
+        connection.close();
+        return borrowings;
     }
+
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
@@ -133,27 +202,27 @@ public class BorrowingsTableAdapter implements DataStore{
 
     // Get a String list
     @Override
-    public List<String> getKeys() throws SQLException {
-        List<String> list = new ArrayList<>();
-//        ResultSet rs;
-//          connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//
-//        while (rs.next()) {
-//            list.add(rs.getString(1));
-//        }
-//        connection.close();
+    public List<Integer> getKeys() throws SQLException {
+        List<Integer> list = new ArrayList<>();
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+
+        // Create a string with a SELECT statement
+        String command = "SELECT borrowingID from borrowings ORDER BY borrowingID";
+
+
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            list.add(rs.getInt(1));
+        }
+        connection.close();
         return list;
     }
 
@@ -167,6 +236,7 @@ public class BorrowingsTableAdapter implements DataStore{
 //        stmt.executeUpdate("DELETE ");
 //        connection.close();
     }
+
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {
 
@@ -178,7 +248,7 @@ public class BorrowingsTableAdapter implements DataStore{
     }
 
     @Override
-    public List<Object> getAllRecords(Object referencedObject) throws SQLException {
+    public List<Object> getAllRecords(String referencedObject) throws SQLException {
         return null;
     }
 
@@ -186,4 +256,10 @@ public class BorrowingsTableAdapter implements DataStore{
     public boolean isRegistered(String key) throws SQLException {
         return false;
     }
+
+    @Override
+    public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
+        return null;
+    }
 }
+

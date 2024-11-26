@@ -120,8 +120,8 @@ public class ReviewsTableAdapter implements DataStore{
     }
     // Get a String list
     @Override
-    public List<String> getKeys() throws SQLException {
-        List<String> list = new ArrayList<>();
+    public List<Integer> getKeys() throws SQLException {
+        List<Integer> list = new ArrayList<>();
 //        ResultSet rs;
 //          connection = DriverManager.getConnection(
 //                "jdbc:mysql://localhost:3306/library",
@@ -165,12 +165,16 @@ public class ReviewsTableAdapter implements DataStore{
     }
 
     @Override
-    public List<Object> getAllRecords(Object referencedObject) throws SQLException {
+    public List<Object> getAllRecords(String referencedObject) throws SQLException {
         return null;
     }
 
     @Override
     public boolean isRegistered(String key) throws SQLException {
         return false;
+    }
+    @Override
+    public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
+        return null;
     }
 }

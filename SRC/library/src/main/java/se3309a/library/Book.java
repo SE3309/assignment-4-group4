@@ -11,6 +11,9 @@ public class Book {
 
     private StringProperty ISBN;
     private StringProperty title;
+    private StringProperty author;
+    private StringProperty genreType;
+    private StringProperty genreDescription;
     private ObjectProperty<Date> publishedDate;
 
 
@@ -18,6 +21,9 @@ public class Book {
 
         this.ISBN = new SimpleStringProperty();
         this.title = new SimpleStringProperty();
+        this.genreType = new SimpleStringProperty();
+        this.genreDescription = new SimpleStringProperty();
+        this.author = new SimpleStringProperty();
         this.publishedDate = new SimpleObjectProperty<>();
     }
 
@@ -33,6 +39,18 @@ public class Book {
         this.publishedDate.set(publishedDate);
     }
 
+    public void setGenreType(String genreType) {
+        this.genreType.set(genreType);
+    }
+
+    public void setAuthor(String author) {
+        this.author.set(author);
+    }
+
+    public void setGenreDescription(String genreDescription) {
+        this.genreDescription.set(genreDescription);
+    }
+
     public String getISBN() {
         return ISBN.get();
     }
@@ -45,6 +63,29 @@ public class Book {
         return publishedDate.get();
     }
 
+    public String getGenreDescription() {
+        return genreDescription.get();
+    }
+
+    public String getGenreType() {
+        return genreType.get();
+    }
+
+    public String getAuthor() {
+        return author.get();
+    }
+
+    public StringProperty authorProperty() {
+        return author;
+    }
+
+    public StringProperty genreTypeProperty() {
+        return genreType;
+    }
+
+    public StringProperty genreDescriptionProperty() {
+        return genreDescription;
+    }
     public ObjectProperty<Date> publishedDateProperty() {
         return publishedDate;
     }

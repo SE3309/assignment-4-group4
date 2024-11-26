@@ -52,11 +52,18 @@ public class BBorrowingsTableAdapter implements DataStore{
                 libraryController.getDBPassword());
 
         Statement stmt = connection.createStatement();
+        String foreignCheck = "SET FOREIGN_KEY_CHECKS=0";
+        stmt.executeUpdate(foreignCheck);
+
         String command = "INSERT INTO bBorrowings ( borrowerID, borrowingID) "
-                + "VALUES ('"
-                + bBorrowings.getBorrower().getBorrowerID() + "', '"
-                + bBorrowings.getBorrowings().getBorrowingID() + "')";
+                + "VALUES ("
+                + bBorrowings.getBorrower().getBorrowerID() + ", "
+                + bBorrowings.getBorrowings().getBorrowingID() + ")";
+        System.out.println(command);
         int rows = stmt.executeUpdate(command);
+
+        String foreignCheck2 = "SET FOREIGN_KEY_CHECKS=1";
+        stmt.executeUpdate(foreignCheck2);
         connection.close();
     }
 
@@ -115,8 +122,8 @@ public class BBorrowingsTableAdapter implements DataStore{
 
         // Get a String list
     @Override
-    public List<String> getKeys() throws SQLException {
-        List<String> list = new ArrayList<>();
+    public List<Integer> getKeys() throws SQLException {
+        List<Integer> list = new ArrayList<>();
 //        ResultSet rs;
 //          connection = DriverManager.getConnection(
 //                "jdbc:mysql://localhost:3306/library",
@@ -127,14 +134,13 @@ public class BBorrowingsTableAdapter implements DataStore{
 //        Statement stmt = connection.createStatement();
 //
 //        // Create a string with a SELECT statement
-//        String command = "SELECT ";
+//        String command = "SELECT COUNT(borrowerID) " +
+//                "FROM bBorrowings";
 //
 //        // Execute the statement and return the result
 //        rs = stmt.executeQuery(command);
 //
-//        while (rs.next()) {
-//            list.add(rs.getString(1));
-//        }
+//
 //        connection.close();
         return list;
     }
@@ -160,7 +166,11 @@ public class BBorrowingsTableAdapter implements DataStore{
     }
 
     @Override
-    public List<Object> getAllRecords(Object referencedObject) throws SQLException {
+    public List<Object> getAllRecords(String referencedObject) throws SQLException {
+        return null;
+    }
+    @Override
+    public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
         return null;
     }
 }

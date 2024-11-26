@@ -72,9 +72,12 @@ public class LibraryController implements Initializable {
     private MenuItem userBookInfoMenuItem;
     private Connection conn;
     private DataStore account;
-    private String userAccountName;
-    public String DBPassword = "password";
+    private int borrowerId;
+    public String DBPassword = "rzanouda";
 
+    public void setBorrowerId(int id){
+        borrowerId = id;
+    }
     // Aya
     @FXML
     public void createUserAccount(ActionEvent event) throws Exception {
@@ -187,6 +190,7 @@ public class LibraryController implements Initializable {
         Parent newUser = fxmlLoader.load();
         CreateReviewController createReviewController = (CreateReviewController) fxmlLoader.getController();
         createReviewController.setLibraryController(this);
+        createReviewController.buildData(borrowerId);
         createReviewController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
@@ -256,6 +260,7 @@ public class LibraryController implements Initializable {
         Parent newUser = fxmlLoader.load();
         SearchBooksController searchBooksController = (SearchBooksController) fxmlLoader.getController();
         searchBooksController.setLibraryController(this);
+        searchBooksController.buildData(borrowerId);
         searchBooksController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
@@ -438,23 +443,11 @@ public class LibraryController implements Initializable {
         loginMenuItem.setDisable(false);
     }
 
-    // set the logged-in username into the menu item
-    public void setUserFullname(String name) {
-        userMenuItem.setText(name);
-    }
-
-    // save user account name
-    public void setUserName(String userAccountName) {
-        this.userAccountName = userAccountName;
-    }
 
     public String getUserFullname() {
         return userMenuItem.getText();
     }
 
-    public String getUserAccountName() {
-        return userAccountName;
-    }
 
     public void displayAlert(String msg) {
         try {

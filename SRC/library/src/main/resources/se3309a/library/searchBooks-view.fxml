@@ -1,14 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se3309a.library.SearchBooksController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="644.0" prefWidth="866.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.SearchBooksController">
+   <children>
+      <TableView fx:id="bookTableView" layoutX="29.0" layoutY="235.0" prefHeight="290.0" prefWidth="798.0">
+        <columns>
+          <TableColumn fx:id="ISBNColumn" editable="false" prefWidth="100.0" sortable="false" text="ISBN" />
+          <TableColumn fx:id="titleColumn" editable="false" prefWidth="260.0" sortable="false" text="Title" />
+            <TableColumn fx:id="authorColumn" editable="false" prefWidth="130.0" sortable="false" text="Author" />
+            <TableColumn fx:id="genreColumn" editable="false" prefWidth="55.0" sortable="false" text="Genre" />
+            <TableColumn fx:id="genreDescriptionColumn" editable="false" prefWidth="170.0" sortable="false" text="Genre Description" />
+            <TableColumn fx:id="dateColumn" editable="false" sortable="false" text="Publish Date" />
+        </columns>
+      </TableView>
+      <Label layoutX="338.0" layoutY="38.0" style="-fx-font-weight: bold;" text="Search Books" textAlignment="CENTER">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Label>
+      <AnchorPane layoutX="35.0" layoutY="98.0">
+         <children>
+            <ComboBox fx:id="sortCombo" layoutX="64.0" prefWidth="150.0" />
+            <Label layoutY="4.0" text="Sort by..." />
+            <Button fx:id="sortBtn" layoutX="241.0" mnemonicParsing="false" onAction="#sort" text="Sort" />
+         </children>
+      </AnchorPane>
+      <Button fx:id="exitBtn" layoutX="783.0" layoutY="567.0" mnemonicParsing="false" onAction="#close" text="Exit" />
+      <Button fx:id="reviewBtn" layoutX="136.0" layoutY="568.0" mnemonicParsing="false" onAction="#review" text="Add Review" />
+      <Button fx:id="holdBtn" layoutX="32.0" layoutY="567.0" mnemonicParsing="false" onAction="#hold" text="Place Hold" />
+      <AnchorPane layoutX="34.0" layoutY="148.0">
+         <children>
+            <Label text="Filter by..." />
+            <CheckBox fx:id="ISBNBox" layoutX="74.0" mnemonicParsing="false" onAction="#filterISBN" text="ISBN" />
+            <CheckBox fx:id="titleBox" layoutX="134.0" mnemonicParsing="false" onAction="#filterTitle" text="Title" />
+            <CheckBox fx:id="authorBox" layoutX="194.0" mnemonicParsing="false" onAction="#filterAuthor" text="Author" />
+            <CheckBox fx:id="genreBox" layoutX="266.0" mnemonicParsing="false" onAction="#filterGenre" text="Genre" />
+            <CheckBox fx:id="dateBox" layoutX="332.0" mnemonicParsing="false" onAction="#filterDate" text="Publish Date" />
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="23.0" layoutY="177.0" prefHeight="41.0" prefWidth="805.0">
+         <children>
+            <TextField fx:id="ISBNFilter" disable="true" layoutX="6.0" layoutY="9.0" prefHeight="26.0" prefWidth="100.0" promptText="Enter ISBN..." />
+            <TextField fx:id="titleFilter" disable="true" layoutX="113.0" layoutY="7.0" prefHeight="26.0" prefWidth="225.0" promptText="Enter title..." />
+            <TextField fx:id="authorFilter" disable="true" layoutX="346.0" layoutY="8.0" prefHeight="26.0" prefWidth="120.0" promptText="Enter author.." />
+            <TextField fx:id="genreFilter" disable="true" layoutX="473.0" layoutY="8.0" prefHeight="26.0" prefWidth="90.0" promptText="Enter genre..." />
+            <TextField fx:id="dateFilter" disable="true" layoutX="572.0" layoutY="8.0" prefHeight="26.0" prefWidth="112.0" promptText="Enter publish date..." />
+            <Button fx:id="filterBtn" disable="true" layoutX="698.0" layoutY="8.0" mnemonicParsing="false" onAction="#filter" text="Filter" />
+            <Button fx:id="clearBtn" disable="true" layoutX="753.0" layoutY="8.0" mnemonicParsing="false" onAction="#clearFilter" text="Clear Filter" />
+         </children>
+      </AnchorPane>
+      <Label fx:id="sortText" layoutX="335.0" layoutY="101.0" text="Select a sort option!" textFill="#c63a3a">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Label fx:id="filterText" layoutX="470.0" layoutY="147.0" text="Enter a filter term!" textFill="#c63a3a">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Label fx:id="bookText" layoutX="243.0" layoutY="570.0" text="Select a book!" textFill="#c63a3a">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+   </children>
 </AnchorPane>

@@ -1,16 +1,12 @@
 package se3309a.library;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BookTableAdapter implements DataStore{
     private Connection connection;
     LibraryController libraryController = new LibraryController();
-  //  private String DB_URL = "jdbc:derby:libraryDB";
     public BookTableAdapter(Boolean reset) throws SQLException {
         connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/library",
@@ -113,8 +109,8 @@ public class BookTableAdapter implements DataStore{
 
     // Get a String list
     @Override
-    public List<String> getKeys() throws SQLException {
-        List<String> list = new ArrayList<>();
+    public List<Integer> getKeys() throws SQLException {
+        List<Integer> list = new ArrayList<>();
 //        ResultSet rs;
 //          connection = DriverManager.getConnection(
 //                "jdbc:mysql://localhost:3306/library",
@@ -154,16 +150,129 @@ public class BookTableAdapter implements DataStore{
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title, a.author, bg.genreType, g.genreDescription, b.publishedDate " +
+                    "FROM book b JOIN bookAuthor a USING (ISBN) JOIN bookGenre bg USING (ISBN) JOIN genre g USING (genreType)";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+                book.setGenreType(result.getString("genreType"));
+                book.setGenreDescription(result.getString("genreDescription"));
+                book.setPublishedDate(result.getDate("publishedDate"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public List<Object> getAllRecords(Object referencedObject) throws SQLException {
-        return null;
-    }
+    public List<Object> getAllRecords(String referencedObject) throws SQLException {
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
 
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+           //  Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title, a.author, bg.genreType, g.genreDescription, b.publishedDate " +
+                    "FROM book b JOIN bookAuthor a USING (ISBN) JOIN bookGenre bg USING (ISBN) JOIN genre g USING (genreType) ORDER BY " +
+                    referencedObject;
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+                book.setGenreType(result.getString("genreType"));
+                book.setGenreDescription(result.getString("genreDescription"));
+                book.setPublishedDate(result.getDate("publishedDate"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referencedObject3) throws SQLException {
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            if(referencedObject.isEmpty()){
+                //  Create a string with a SELECT statement
+                String command = "SELECT b.ISBN, b.title, a.author, bg.genreType, g.genreDescription, b.publishedDate " +
+                        "FROM book b JOIN bookAuthor a USING (ISBN) JOIN bookGenre bg USING (ISBN) JOIN genre g USING (genreType) "+
+                        "WHERE " + referencedObject2 + " = '" + referencedObject3 + "'";
+                // Execute the statement and return the result
+                result = stmt.executeQuery(command);
+            }else{
+                //  Create a string with a SELECT statement
+                String command = "SELECT b.ISBN, b.title, a.author, bg.genreType, g.genreDescription, b.publishedDate " +
+                        "FROM book b JOIN bookAuthor a USING (ISBN) JOIN bookGenre bg USING (ISBN) JOIN genre g USING (genreType) "+
+                        "WHERE " + referencedObject2 + " = '" + referencedObject3
+                        + "' ORDER BY " + referencedObject;
+                // Execute the statement and return the result
+                result = stmt.executeQuery(command);
+            }
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+                book.setGenreType(result.getString("genreType"));
+                book.setGenreDescription(result.getString("genreDescription"));
+                book.setPublishedDate(result.getDate("publishedDate"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }     }
     @Override
     public boolean isRegistered(String key) throws SQLException {
         return false;
     }
+
 }

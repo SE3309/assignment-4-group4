@@ -3,13 +3,17 @@ package se3309a.library;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
@@ -86,6 +90,7 @@ public class LoginController implements Initializable {
                     Borrower borrower = (Borrower) borrowerTable.findOneRecord(enteredUser, enteredPassword);
                     if(borrower.getbEmail()!=null) {
                         libraryController.enableBorrowerControls();
+                        libraryController.setBorrowerId(borrower.getBorrowerID());
                     }else{
                         errorMsg.setText("Invalid credentials. Please try again.");
                         return;
@@ -93,7 +98,8 @@ public class LoginController implements Initializable {
 
                 }catch (SQLException e){
                     libraryController.displayAlert("ERROR-Login: " + e.getMessage());
-                }            }
+                }
+            }
 
             }
         catch (SQLException ex){

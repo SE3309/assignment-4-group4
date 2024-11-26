@@ -21,9 +21,11 @@ public interface DataStore {
     // check if key exists
     public boolean isRegistered(String key) throws SQLException;
     // Get list of all data keys
-    public List<String> getKeys() throws SQLException;
+    public List<Integer> getKeys() throws SQLException;
     // Get a list of all data records
     public List<Object> getAllRecords() throws SQLException;
     // Get a list of specific records by referenced table data
-    public List<Object> getAllRecords(Object referencedObject) throws SQLException;
+    public List<Object> getAllRecords(String referencedObject) throws SQLException;
+    public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException;
+
 }

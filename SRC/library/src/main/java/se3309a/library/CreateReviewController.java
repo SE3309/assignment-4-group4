@@ -3,6 +3,9 @@ package se3309a.library;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 public class CreateReviewController {
     private DataStore bookTable;
     private DataStore bookAuthorTable;
@@ -20,6 +23,8 @@ public class CreateReviewController {
     private DataStore finesTable;
     private LibraryController libraryController;
     final ObservableList<String> data = FXCollections.observableArrayList();
+    private Borrower borrower;
+
 
     public void setLibraryController(LibraryController controller) {
         libraryController = controller;
@@ -44,4 +49,13 @@ public class CreateReviewController {
         historyLogTable = historyLog;
         finesTable = fines;
     }
+
+    public void buildData(int borrowerID) {
+        borrower.setBorrowerID(borrowerID);
+    }
+
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        borrower = new Borrower();
+    }
+
 }
