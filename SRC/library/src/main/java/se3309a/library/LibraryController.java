@@ -73,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "rzanouda";
+    public String DBPassword = "enter your pass";
 
     public void setBorrowerId(int id){
         borrowerId = id;
