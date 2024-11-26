@@ -73,11 +73,15 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "enter your pass";
+    public String DBPassword = "rzanouda";
+    public String ISBN;
 
 
     public void setBorrowerId(int id){
         borrowerId = id;
+    }
+    public void setISBN(String isbn){
+        ISBN =isbn;
     }
     // Aya
     @FXML
@@ -191,7 +195,7 @@ public class LibraryController implements Initializable {
         Parent newUser = fxmlLoader.load();
         CreateReviewController createReviewController = (CreateReviewController) fxmlLoader.getController();
         createReviewController.setLibraryController(this);
-        createReviewController.buildData(borrowerId);
+        createReviewController.buildData(borrowerId, ISBN);
         createReviewController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),

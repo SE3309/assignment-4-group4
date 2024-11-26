@@ -25,12 +25,12 @@ public class CreateReviewController implements Initializable {
     private LibraryController libraryController;
     final ObservableList<String> data = FXCollections.observableArrayList();
     private Borrower borrower;
+    private Book book;
 
 
     public void setLibraryController(LibraryController controller) {
         libraryController = controller;
     }
-
     public void setDataStore(DataStore book, DataStore bookAuthor, DataStore bookGenre, DataStore bookBorrowings,
                              DataStore staff, DataStore staffContact, DataStore borrower, DataStore bBorrowings,
                              DataStore borrowerContact, DataStore genre, DataStore borrowings, DataStore reviews,
@@ -51,13 +51,16 @@ public class CreateReviewController implements Initializable {
         finesTable = fines;
     }
 
-    public void buildData(int borrowerID) {
+    public void buildData(int borrowerID, String ISBN) {
         borrower.setBorrowerID(borrowerID);
+        book.setISBN(ISBN);
     }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         borrower = new Borrower();
+        book = new Book();
     }
 
 }

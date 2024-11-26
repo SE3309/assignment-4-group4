@@ -1,41 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se3309a.library.CreateReviewController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="502.0" prefWidth="620.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.CreateReviewController">
     <children>
-        <VBox spacing="10" prefWidth="600" layoutX="20" layoutY="20" prefHeight="400">
-            <!-- Title -->
-            <Label text="Book Reviews" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+      <TextField fx:id="reviewTextField" alignment="CENTER" layoutX="159.0" layoutY="137.0" prefHeight="26.0" prefWidth="370.0" />
+      <Label layoutX="31.0" layoutY="141.0" prefHeight="17.0" prefWidth="128.0" text="Write your review ">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+        <VBox layoutX="7.0" layoutY="174.0" prefHeight="353.0" prefWidth="613.0" spacing="10">
 
             <!-- Table for Reviews -->
             <TableView fx:id="reviewTable" prefHeight="300">
                 <!-- Columns -->
                 <columns>
                     <!-- Rating Column -->
-                    <TableColumn fx:id="ratingColumn" text="Rating" prefWidth="80" />
+                    <TableColumn fx:id="ratingColumn" prefWidth="80" text="Rating" />
                     <!-- Review Text Column -->
-                    <TableColumn fx:id="reviewTextColumn" text="Review" prefWidth="250" />
+                    <TableColumn fx:id="reviewTextColumn" prefWidth="250" text="Review" />
                     <!-- Borrower Email Column -->
-                    <TableColumn fx:id="borrowerEmailColumn" text="Borrower Email" prefWidth="150" />
+                    <TableColumn fx:id="borrowerEmailColumn" prefWidth="150" text="Borrower Email" />
                     <!-- Review Date Column -->
-                    <TableColumn fx:id="reviewDateColumn" text="Review Date" prefWidth="100" />
+                    <TableColumn fx:id="reviewDateColumn" prefWidth="100" text="Review Date" />
                 </columns>
             </TableView>
 
             <!-- Buttons -->
             <HBox spacing="10">
-                <Button fx:id="refreshButton" text="Refresh Reviews" prefWidth="150" />
-                <Button fx:id="backButton" text="Back" prefWidth="100" />
+                <Button fx:id="refreshButton" prefWidth="150" text="Refresh Reviews" />
+                <Button fx:id="backButton" prefWidth="100" text="Back" />
             </HBox>
         </VBox>
+      <Label layoutX="31.0" layoutY="63.0" text="Reviews ">
+         <font>
+            <Font size="30.0" />
+         </font>
+      </Label>
     </children>
 
 </AnchorPane>

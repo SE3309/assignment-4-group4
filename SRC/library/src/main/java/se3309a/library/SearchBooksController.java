@@ -104,6 +104,7 @@ public class SearchBooksController implements Initializable {
     private DataStore finesTable;
     private LibraryController libraryController;
     private LoginController loginController = new LoginController();
+    private CreateReviewController createReviewController = new CreateReviewController();
     final ObservableList<String> data = FXCollections.observableArrayList();
     private boolean sorted = false;
     private boolean filtered = false;
@@ -112,6 +113,7 @@ public class SearchBooksController implements Initializable {
     private String filterTerm = "";
     private Borrower borrower;
 
+    private Book book = new Book();
 
     // set origin controller
     public void setLibraryController(LibraryController controller) {
@@ -386,7 +388,7 @@ public class SearchBooksController implements Initializable {
     @FXML
     void hold(ActionEvent event) throws SQLException {
         // get selected book
-        Book book = (Book) bookTableView.getSelectionModel().getSelectedItem();
+         book = (Book) bookTableView.getSelectionModel().getSelectedItem();
         // if none selected sends warning
         if (bookTableView.getSelectionModel().getSelectedItem() == null) {
             libraryController.displayAlert("Please select a book first.");
@@ -455,6 +457,8 @@ public class SearchBooksController implements Initializable {
         if (bookTableView.getSelectionModel().getSelectedItem() == null) {
             libraryController.displayAlert("Please select a book first.");
         } else {
+            book = (Book) bookTableView.getSelectionModel().getSelectedItem();
+            libraryController.setISBN(book.getISBN());
             libraryController.createReview();
         }
     }
