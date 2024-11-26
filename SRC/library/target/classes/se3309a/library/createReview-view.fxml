@@ -10,5 +10,32 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="se3309a.library.CreateReviewController"
             prefHeight="400.0" prefWidth="600.0">
+    <children>
+        <VBox spacing="10" prefWidth="600" layoutX="20" layoutY="20" prefHeight="400">
+            <!-- Title -->
+            <Label text="Book Reviews" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+            <!-- Table for Reviews -->
+            <TableView fx:id="reviewTable" prefHeight="300">
+                <!-- Columns -->
+                <columns>
+                    <!-- Rating Column -->
+                    <TableColumn fx:id="ratingColumn" text="Rating" prefWidth="80" />
+                    <!-- Review Text Column -->
+                    <TableColumn fx:id="reviewTextColumn" text="Review" prefWidth="250" />
+                    <!-- Borrower Email Column -->
+                    <TableColumn fx:id="borrowerEmailColumn" text="Borrower Email" prefWidth="150" />
+                    <!-- Review Date Column -->
+                    <TableColumn fx:id="reviewDateColumn" text="Review Date" prefWidth="100" />
+                </columns>
+            </TableView>
+
+            <!-- Buttons -->
+            <HBox spacing="10">
+                <Button fx:id="refreshButton" text="Refresh Reviews" prefWidth="150" />
+                <Button fx:id="backButton" text="Back" prefWidth="100" />
+            </HBox>
+        </VBox>
+    </children>
 
 </AnchorPane>
