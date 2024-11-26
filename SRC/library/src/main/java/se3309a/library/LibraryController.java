@@ -73,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "rzanouda";
+    public String DBPassword = "123123Sb";
 
     public void setBorrowerId(int id){
         borrowerId = id;
@@ -207,22 +207,39 @@ public class LibraryController implements Initializable {
     }
 
     // Shahed
-    public void findBookBorrowingHistory() throws Exception{
-        // load the fxml file (the UI elements)
+    public void findBookBorrowingHistory() throws Exception {
+        // Load the FXML file for the view
         FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("findBookBorrowingHistory-view.fxml"));
-        // create the root node
         Parent newUser = fxmlLoader.load();
-        FindBookBorrowingHistoryController findBookBorrowingHistoryController = (FindBookBorrowingHistoryController) fxmlLoader.getController();
+
+        // Retrieve the controller
+        FindBookBorrowingHistoryController findBookBorrowingHistoryController = fxmlLoader.getController();
+
+        // Set the database connection
+        findBookBorrowingHistoryController.setDatabaseConnection(conn);
+
+        // Set other required data stores and the library controller
         findBookBorrowingHistoryController.setLibraryController(this);
-        findBookBorrowingHistoryController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
-                new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
-                new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
-                new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
-                new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
-        // create new stage
+        findBookBorrowingHistoryController.setDataStore(
+                new BookTableAdapter(false),
+                new BookAuthorTableAdapter(false),
+                new BookGenreTableAdapter(false),
+                new BookBorrowingsTableAdapter(false),
+                new StaffTableAdapter(false),
+                new StaffContactTableAdapter(false),
+                new BorrowerTableAdapter(false),
+                new BBorrowingsTableAdapter(false),
+                new BorrowerContactTableAdapter(false),
+                new GenreTableAdapter(false),
+                new BorrowingsTableAdapter(false),
+                new ReviewsTableAdapter(false),
+                new HistoryLogTableAdapter(false),
+                new FinesTableAdapter(false)
+        );
+
+        // Create a new stage
         Stage stage = new Stage();
         stage.setScene(new Scene(newUser));
-        // add icon to the About window
         stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
         stage.setTitle("Find Book Borrowing History");
         stage.initModality(Modality.APPLICATION_MODAL);
