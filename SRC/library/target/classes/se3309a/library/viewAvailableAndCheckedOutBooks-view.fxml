@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="se3309a.library.ViewAvailableAndCheckedOutBooksController"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane prefHeight="421.0" prefWidth="869.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.ViewAvailableAndCheckedOutBooksController">
+   <children>
+      <Text layoutX="571.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Checked-out Books">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="172.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available Books">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+      <TableView fx:id="availableBooksTable" layoutX="28.0" layoutY="87.0" prefHeight="300.0" prefWidth="403.0">
+        <columns>
+          <TableColumn fx:id="ISBN1Column" prefWidth="115.0" text="ISBN" />
+          <TableColumn fx:id="title1Column" prefWidth="287.0" text="Title" />
+        </columns>
+      </TableView>
+      <TableView fx:id="checkedOutBooksTable" layoutX="446.0" layoutY="87.0" prefHeight="300.0" prefWidth="403.0">
+         <columns>
+            <TableColumn fx:id="ISBN2Column" prefWidth="115.0" text="ISBN" />
+            <TableColumn fx:id="title2Column" prefWidth="286.9999694824219" text="Title" />
+         </columns>
+      </TableView>
+   </children>
 </AnchorPane>

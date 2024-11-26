@@ -245,12 +245,84 @@ public class BorrowingsTableAdapter implements DataStore {
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT" +
+                    "    bg.genreType, " +
+                    "    g.genreDescription, " +
+                    "    COUNT(bg.genreType) AS genreCount " +
+                    "FROM borrowings b " +
+                    "JOIN bookGenre bg USING (ISBN) " +
+                    "JOIN genre g USING (genreType) " +
+                    "GROUP BY bg.genreType, g.genreDescription "  +
+                    "ORDER BY genreCount DESC;";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Genre genre = new Genre();
+                genre.setGenreType(result.getString("genreType"));
+                genre.setGenreDescription(result.getString("genreDescription"));
+                genre.setGenreCount(result.getInt("genreCount"));
+
+
+                list.add(genre);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Object> getAllRecords(String referencedObject) throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title " +
+                    "FROM book b " +
+                    "LEFT JOIN borrowings br ON b.ISBN = br.ISBN " +
+                    "WHERE br.ISBN IS NULL";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -260,7 +332,38 @@ public class BorrowingsTableAdapter implements DataStore {
 
     @Override
     public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
-        return null;
-    }
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title " +
+                    "FROM book b " +
+                    "JOIN borrowings br ON b.ISBN = br.ISBN";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }    }
 }
 
