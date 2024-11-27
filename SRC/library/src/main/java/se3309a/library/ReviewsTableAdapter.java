@@ -209,7 +209,38 @@ public class ReviewsTableAdapter implements DataStore {
 
     @Override
     public List<Object> getAllRecords(String referencedObject) throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT ISBN, rating, reviewText, reviewDate FROM reviews ORDER BY reviewDate DESC";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+            while (result.next()) {
+                Reviews review = new Reviews();
+                Book book = new Book();
+                review.setBook(book);
+                review.getBook().setISBN(result.getString("ISBN"));
+                review.setReviewText(result.getString("reviewText"));
+                review.setRating(result.getInt("rating"));
+                review.setReviewDate(result.getDate("reviewDate"));
+                list.add(review);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

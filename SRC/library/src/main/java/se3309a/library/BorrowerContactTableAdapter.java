@@ -108,8 +108,28 @@ public class BorrowerContactTableAdapter implements DataStore{
 
     @Override
     public Object findOneRecord2(String key) throws SQLException {
-        return null;
-    }
+        BorrowerContact borrowerContact = new BorrowerContact();
+        Borrower borrower = new Borrower();
+        borrowerContact.setBorrower(borrower);
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT bName FROM borrowerContact WHERE bEmail = " +
+                "(SELECT bEmail FROM borrower WHERE borrowerID = " +
+                "(SELECT borrowerID FROM borrowings WHERE ISBN = '" + key +"'))";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowerContact.setName(rs.getString("bName"));
+        }
+        connection.close();
+        return borrowerContact;    }
 
     // Get a String list
     @Override
@@ -155,7 +175,36 @@ public class BorrowerContactTableAdapter implements DataStore{
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+            //  Create a string with a SELECT statement
+            String command = "SELECT * FROM borrowerContact";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+            while (result.next()) {
+                BorrowerContact borrowerContact = new BorrowerContact();
+                Borrower borrower = new Borrower();
+                borrowerContact.setBorrower(borrower);
+                borrowerContact.setName(result.getString("bName"));
+                borrowerContact.getBorrower().setbEmail(result.getString("bEmail"));
+
+                list.add(borrowerContact);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

@@ -108,11 +108,71 @@ public class BookBorrowingsTableAdapter implements DataStore{
 
     @Override
     public Object findOneRecord2(String key) throws SQLException {
-        return null;
+        Borrowings borrowings = new Borrowings();
+        Borrower borrower = new Borrower();
+        Book book = new Book();
+        Fines fines = new Fines();
+
+        borrowings.setFine(fines);
+        borrowings.setBorrower(borrower);
+        borrowings.setBook(book);
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT borrowerID FROM borrowings WHERE ISBN = '" + key + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowings.setBorrowingID(rs.getInt("borrowingID"));
+            borrowings.setBorrowDate(rs.getDate("borrowDate"));
+            borrowings.setReturnDate(rs.getDate("returnDate"));
+            borrowings.setStatus(rs.getString("status"));
+            borrowings.getBorrower().setBorrowerID(rs.getInt("borrowerID"));
+            borrowings.getBook().setISBN(rs.getString("ISBN"));
+            borrowings.getFine().setFineID(rs.getInt("fineID"));
+        }
+        connection.close();
+        return borrowings;
     }
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
-        return null;
+        Borrowings borrowings = new Borrowings();
+        Book book = new Book();
+        borrowings.setBook(book);
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT b.ISBN, b.title, br.borrowDate, br.returnDate " +
+                "FROM book b " +
+                "JOIN borrowings br ON b.ISBN = br.ISBN " +
+                "WHERE br.borrowerID = '" + key1 + "'" +
+                "GROUP BY b.ISBN, b.title, br.borrowDate, br.returnDate " +
+                "HAVING COUNT(br.borrowDate) > 0";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            borrowings.setBorrowDate(rs.getDate("borrowDate"));
+            borrowings.setReturnDate(rs.getDate("returnDate"));
+            borrowings.getBook().setISBN(rs.getString("ISBN"));
+            borrowings.getBook().setTitle(rs.getString("title"));
+
+        }
+        connection.close();
+        return borrowings;
     }
 
     // Get a String list

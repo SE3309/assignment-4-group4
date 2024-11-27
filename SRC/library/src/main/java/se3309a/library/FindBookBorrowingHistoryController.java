@@ -71,7 +71,6 @@ public class FindBookBorrowingHistoryController implements Initializable {
         // Add listener for row selection
         bookTableList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                System.out.println("Selected ISBN: " + ((Book) newValue).getISBN()); // Debugging step
                 updateTimesBorrowed(((Book) newValue).getISBN());
                 updateAverageBorrowDuration(((Book) newValue).getISBN());
             } else {
@@ -104,39 +103,9 @@ public class FindBookBorrowingHistoryController implements Initializable {
         borrowerNames.clear();
 
         try {
-            // to retrieve borrower names , I will be cross-referencing borrower,borrowings and borrower contact
-            // first, Get Borrower IDs for the Selected ISBN
-            String borrowerIdQuery = "SELECT borrowerID FROM borrowings WHERE ISBN = ?";
-            PreparedStatement borrowerIdStmt = databaseConnection.prepareStatement(borrowerIdQuery);
-            borrowerIdStmt.setString(1, isbn);
-            ResultSet borrowerIdResultSet = borrowerIdStmt.executeQuery();
+            BorrowerContact borrowerContact = (BorrowerContact) borrowerContactTable.findOneRecord2(isbn);
+            borrowerNames.add(borrowerContact.getName());
 
-            while (borrowerIdResultSet.next()) {
-                int borrowerID = borrowerIdResultSet.getInt("borrowerID");
-
-                // second, Get Email for the Borrower ID
-                String emailQuery = "SELECT bEmail FROM borrower WHERE borrowerID = ?";
-                PreparedStatement emailStmt = databaseConnection.prepareStatement(emailQuery);
-                emailStmt.setInt(1, borrowerID);
-                ResultSet emailResultSet = emailStmt.executeQuery();
-
-                if (emailResultSet.next()) {
-                    String email = emailResultSet.getString("bEmail");
-
-                    // third, Get Name from BorrowerContact
-                    String nameQuery = "SELECT bName FROM borrowerContact WHERE bEmail = ?";
-                    PreparedStatement nameStmt = databaseConnection.prepareStatement(nameQuery);
-                    nameStmt.setString(1, email);
-                    ResultSet nameResultSet = nameStmt.executeQuery();
-
-                    if (nameResultSet.next()) {
-                        String name = nameResultSet.getString("bName");
-                        borrowerNames.add(name); // Add to the observable list
-                    }
-                }
-            }
-
-            System.out.println("Total Borrower Names Loaded: " + borrowerNames.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -150,7 +119,6 @@ public class FindBookBorrowingHistoryController implements Initializable {
         try {
             int borrowCount = (int) borrowingsTable.findOneRecord(isbn, "");
 
-            System.out.println("Borrow Count for ISBN " + isbn + ": " + borrowCount); // Debug
             timesBorrowedLabel.setText("" + borrowCount);
 
         } catch (Exception e) {

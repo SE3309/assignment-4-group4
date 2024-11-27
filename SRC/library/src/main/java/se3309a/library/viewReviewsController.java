@@ -94,7 +94,6 @@ public class viewReviewsController implements Initializable {
         book.setISBN(ISBN);
     }
 
-
     public ObservableList<Object> getReviews() {
         try {
             List<Object> list = reviewsTable.getAllRecords();

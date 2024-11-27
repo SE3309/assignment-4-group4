@@ -269,7 +269,34 @@ public class BorrowerTableAdapter implements DataStore{
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+            //  Create a string with a SELECT statement
+            String command = "SELECT borrowerID, bEmail FROM borrower";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+            while (result.next()) {
+                Borrower borrower = new Borrower();
+                borrower.setBorrowerID(result.getInt("borrowerID"));
+                borrower.setbEmail(result.getString("bEmail"));
+
+                list.add(borrower);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

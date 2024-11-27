@@ -199,7 +199,7 @@ public class FinesTableAdapter implements DataStore{
 
             // Create a string with a SELECT statement
             String command = "SELECT * FROM fines WHERE borrowerID = '"
-                    + referencedObject + "'";
+                    + referencedObject + "' ORDER BY fineID";
             // Execute the statement and return the result
             result = stmt.executeQuery(command);
 

@@ -78,23 +78,23 @@ public class BookTableAdapter implements DataStore{
     @Override
     public Object findOneRecord(String key) throws SQLException {
         Book book = new Book();
-//        ResultSet rs;
-//        connection = DriverManager.getConnection(
-//                "jdbc:mysql://localhost:3306/library",
-//                "root",
-//                libraryController.getDBPassword());
-//
-//        // Create a Statement object
-//        Statement stmt = connection.createStatement();
-//        // Create a string with a SELECT statement
-//        String command = "SELECT ";
-//        // Execute the statement and return the result
-//        rs = stmt.executeQuery(command);
-//        while (rs.next()) {
-//            // note that, this loop will run only once
-//
-//        }
-//        connection.close();
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT title FROM book WHERE ISBN = '" + key + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            book.setTitle(rs.getString("title"));
+        }
+        connection.close();
         return book;
     }
 

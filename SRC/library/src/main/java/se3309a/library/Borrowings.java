@@ -12,6 +12,7 @@ public class Borrowings {
     private ObjectProperty<Book> book;
     private ObjectProperty<Borrower> borrower;
     private ObjectProperty<Fines> fine;
+    private IntegerProperty borrowCount;
 
     public Borrowings(){
         this.borrowingID = new SimpleIntegerProperty();
@@ -21,6 +22,7 @@ public class Borrowings {
         this.book = new SimpleObjectProperty<>();
         this.borrower = new SimpleObjectProperty<>();
         this.fine = new SimpleObjectProperty<>();
+        this.borrowCount = new SimpleIntegerProperty();
     }
 
     public void setBorrowDate(Date borrowDate) {
@@ -37,6 +39,10 @@ public class Borrowings {
 
     public void setStatus(String status) {
         this.status.set(status);
+    }
+
+    public void setBorrowCount(int borrowCount) {
+        this.borrowCount.set(borrowCount);
     }
 
     public void setBorrower(Borrower borrower) {
@@ -75,6 +81,10 @@ public class Borrowings {
         return book.get();
     }
 
+    public int getBorrowCount() {
+        return borrowCount.get();
+    }
+
     public Fines getFine() {
         return fine.get();
     }
@@ -105,5 +115,9 @@ public class Borrowings {
 
     public StringProperty statusProperty() {
         return status;
+    }
+
+    public IntegerProperty borrowCountProperty() {
+        return borrowCount;
     }
 }

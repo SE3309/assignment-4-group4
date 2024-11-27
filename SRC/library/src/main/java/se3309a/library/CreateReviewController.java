@@ -109,7 +109,7 @@ public class CreateReviewController implements Initializable {
         alert.showAndWait();
     }
     @FXML
-    void close(ActionEvent event) {
+   public void close(ActionEvent event) {
         // Get current stage reference
         Stage stage = (Stage) backButton.getScene().getWindow();
         // Close stage
@@ -120,8 +120,8 @@ public class CreateReviewController implements Initializable {
         // Validate inputs
         Integer rating = ratingComboBox.getValue();
         String reviewText = reviewTextField.getText();
-        if (rating == null || reviewText == null || reviewText.isEmpty()) {
-            showErrorMessage("Rating and review text are required.");
+        if (rating == null) {
+            showErrorMessage("Rating is required.");
             return;
         }
 

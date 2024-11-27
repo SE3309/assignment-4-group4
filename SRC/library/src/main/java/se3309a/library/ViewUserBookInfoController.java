@@ -14,15 +14,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.event.ActionEvent;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
-public class ViewUserBookInfoController  {
+public class ViewUserBookInfoController {
     //table 1: declarations for viewing all users in database as well as how many books they have borrowed in total
     @FXML
     private ComboBox<String> criteriaCombo;
@@ -34,7 +32,7 @@ public class ViewUserBookInfoController  {
     @FXML
     private TableView<Borrower> tableView;
     @FXML
-    private TableColumn<Borrower, Number> idColumn,numOfBooksBorrowedColumn;
+    private TableColumn<Borrower, Number> idColumn, numOfBooksBorrowedColumn;
     @FXML
     private TableColumn<Borrower, String> nameColumn, emailColumn;
 
@@ -53,7 +51,7 @@ public class ViewUserBookInfoController  {
     private Label userNameLabel; // Displays user name
 
 
-    private DataStore bookTable,bookAuthorTable,bookGenreTable,bookBorrowingsTable,staffTable,staffContactTable,borrowerTable,bBorrowingsTable,borrowerContactTable,genreTable,borrowingsTable,reviewsTable,historyLogTable,finesTable;
+    private DataStore bookTable, bookAuthorTable, bookGenreTable, bookBorrowingsTable, staffTable, staffContactTable, borrowerTable, bBorrowingsTable, borrowerContactTable, genreTable, borrowingsTable, reviewsTable, historyLogTable, finesTable;
     // List to hold Borrower data
     private ObservableList<Borrower> borrowerList = FXCollections.observableArrayList();
 
@@ -66,7 +64,7 @@ public class ViewUserBookInfoController  {
     private Connection databaseConnection;
 
 
-    public void initialize() {
+    public void initialize() throws SQLException {
         // Initialize the ComboBox with search criteria
         criteriaCombo.getItems().addAll("Name", "Email", "BorrowerID");
         criteriaCombo.setValue("BorrowerID"); //
@@ -90,7 +88,7 @@ public class ViewUserBookInfoController  {
         nameColumn.setCellValueFactory(cellData -> {
             String email = cellData.getValue().getbEmail();
             String name = borrowerContactMap.get(email); // Fetch name from map using email
-            return new SimpleStringProperty(name != null ? name : "Unknown");
+            return new SimpleStringProperty(name != null ? name : "Unknown Name");
         });
         numOfBooksBorrowedColumn.setCellValueFactory(cellData -> {
             int borrowerID = cellData.getValue().getBorrowerID(); // Get Borrower ID
@@ -101,6 +99,16 @@ public class ViewUserBookInfoController  {
 
         // Bind borrower list to the TableView
         tableView.setItems(borrowerList);
+
+        try {
+            setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
+                    new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
+                    new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
+                    new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
+                    new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         // Load data
         loadBorrowerContactDataFromDatabase(); // Load BorrowerContact data first
@@ -116,8 +124,6 @@ public class ViewUserBookInfoController  {
                 // Update the userNameLabel
                 userNameLabel.setText(name);
 
-                // Log for debugging
-                System.out.println("Selected User Name: " + name);
             }
         });
 
@@ -141,7 +147,6 @@ public class ViewUserBookInfoController  {
         String selectedCriteria = criteriaCombo.getValue(); // Get the selected criteria from the ComboBox
 
         if (searchText.isEmpty()) {
-            System.out.println("Search field is empty. Showing all records.");
             tableView.setItems(borrowerList); // Reset to show all items
             return;
         }
@@ -177,15 +182,14 @@ public class ViewUserBookInfoController  {
         // Update the TableView with the filtered list
         tableView.setItems(filteredList);
 
-        // Log the search results
-        System.out.println("Search completed. Total matches found: " + filteredList.size());
     }
-    public void viewUserBookHistory(ActionEvent event) {
+
+    public void viewUserBookHistory(ActionEvent event) throws SQLException {
         // Get selected borrower from tableView
         Borrower selectedBorrower = tableView.getSelectionModel().getSelectedItem();
 
         if (selectedBorrower == null) {
-            System.out.println("No borrower selected.");
+            libraryController.displayAlert("No borrower selected.");
             return;
         }
 
@@ -194,85 +198,43 @@ public class ViewUserBookInfoController  {
         // Clear existing data in tableView2
         tableView2.getItems().clear();
 
-        // SQL queries
-        String borrowingsQuery = "SELECT ISBN, borrowDate, returnDate FROM borrowings WHERE borrowerID = ?";
-        String bookQuery = "SELECT title FROM book WHERE ISBN = ?";
+        Borrowings borrowings = (Borrowings) bookBorrowingsTable.findOneRecord(String.valueOf(borrowerID), "");
 
-        try (PreparedStatement borrowStmt = databaseConnection.prepareStatement(borrowingsQuery);
-             PreparedStatement bookStmt = databaseConnection.prepareStatement(bookQuery)) {
+        // ObservableList to hold the data for tableView2
+        ObservableList<Map<String, Object>> data = FXCollections.observableArrayList();
 
-            // Set borrowerID for borrowings query
-            borrowStmt.setInt(1, borrowerID);
+        // Create a Map to hold this row's data
+        Map<String, Object> row = new HashMap<>();
+        row.put("ISBN", borrowings.getBook().getISBN());
+        row.put("Title", borrowings.getBook().getTitle());
+        row.put("BorrowDate", borrowings.getBorrowDate());
+        row.put("ReturnDate", borrowings.getReturnDate());
 
-            ResultSet borrowingsResultSet = borrowStmt.executeQuery();
+        // Add the row to the ObservableList
+        data.add(row);
 
-            // ObservableList to hold the data for tableView2
-            ObservableList<Map<String, Object>> data = FXCollections.observableArrayList();
-
-            while (borrowingsResultSet.next()) {
-                String isbn = borrowingsResultSet.getString("ISBN");
-                Date borrowDate = borrowingsResultSet.getDate("borrowDate");
-                Date returnDate = borrowingsResultSet.getDate("returnDate");
-
-                // Fetch the book title using the ISBN
-                bookStmt.setString(1, isbn);
-                ResultSet bookResultSet = bookStmt.executeQuery();
-
-                String bookTitle = "Unknown"; // Default title
-                if (bookResultSet.next()) {
-                    bookTitle = bookResultSet.getString("title");
-                }
-
-                // Create a Map to hold this row's data
-                Map<String, Object> row = new HashMap<>();
-                row.put("ISBN", isbn);
-                row.put("Title", bookTitle);
-                row.put("BorrowDate", borrowDate);
-                row.put("ReturnDate", returnDate);
-
-                // Add the row to the ObservableList
-                data.add(row);
-            }
-
-            // Set the data to tableView2
-            tableView2.setItems(data);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Set the data to tableView2
+        tableView2.setItems(data);
     }
 
-    private void loadBorrowerContactDataFromDatabase() {
+    private void loadBorrowerContactDataFromDatabase() throws SQLException {
         if (databaseConnection == null) {
             System.err.println("Database connection is not initialized.");
             return;
         }
 
         borrowerContactMap.clear(); // Clear the map before populating it
-        String query = "SELECT bName, bEmail FROM borrowerContact";
-
-        try (PreparedStatement stmt = databaseConnection.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                String email = rs.getString("bEmail");
-                String name = rs.getString("bName");
-
-                borrowerContactMap.put(email, name); // Populate map
-
-                // Debugging log
-                System.out.println("Added to borrowerContactMap: Email = " + email + ", Name = " + name);
-            }
-
-            System.out.println("Total BorrowerContacts Loaded: " + borrowerContactMap.size());
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<Object> list = borrowerContactTable.getAllRecords();
+        for (int i = 0; i < list.size(); i++) {
+            String email = ((BorrowerContact) list.get(i)).getBorrower().getbEmail();
+            String name = ((BorrowerContact) list.get(i)).getName();
+            borrowerContactMap.put(email, name);
         }
+
     }
 
 
-
-    private void loadBorrowerDataFromDatabase() {
+    private void loadBorrowerDataFromDatabase() throws SQLException {
         if (databaseConnection == null) {
             System.err.println("Database connection is not initialized.");
             return;
@@ -280,58 +242,30 @@ public class ViewUserBookInfoController  {
 
         borrowerList.clear();
 
-        String query = "SELECT borrowerID, bEmail FROM borrower";
-
-        try (PreparedStatement stmt = databaseConnection.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Borrower borrower = new Borrower();
-                borrower.setBorrowerID(rs.getInt("borrowerID"));
-                borrower.setbEmail(rs.getString("bEmail"));
-
-                borrowerList.add(borrower);
-
-                // Log borrower data
-                System.out.println("Added Borrower: ID = " + borrower.getBorrowerID() +
-                        ", Email = " + borrower.getbEmail() +
-                        ", Name = " + borrowerContactMap.get(borrower.getbEmail()));
-            }
-
-            System.out.println("Total Borrowers Loaded: " + borrowerList.size());
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<Object> list = borrowerTable.getAllRecords();
+        for (int i = 0; i < list.size(); i++) {
+            Borrower borrower = (Borrower) list.get(i);
+            borrowerList.add(borrower);
         }
+
     }
 
-    private void preloadBorrowingCounts() {
+    private void preloadBorrowingCounts() throws SQLException {
         if (databaseConnection == null) {
             System.err.println("Database connection is not initialized.");
             return;
         }
 
         borrowCountMap.clear();
+        List<Object> list = bBorrowingsTable.getAllRecords();
+        for (int i = 0; i < list.size(); i++) {
+            int borrowerID = ((Borrowings) list.get(i)).getBorrower().getBorrowerID();
+            int borrowCount = ((Borrowings) list.get(i)).getBorrowCount();
 
-        String query = "SELECT borrowerID, COUNT(*) AS borrowCount FROM borrowings GROUP BY borrowerID";
-
-        try (PreparedStatement stmt = databaseConnection.prepareStatement(query)) {
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                int borrowerID = rs.getInt("borrowerID");
-                int borrowCount = rs.getInt("borrowCount");
-                borrowCountMap.put(borrowerID, borrowCount);
-
-                // Log the borrowing count for debugging
-                System.out.println("BorrowerID = " + borrowerID + ", BorrowCount = " + borrowCount);
-            }
-
-            System.out.println("Total Borrow Counts Preloaded: " + borrowCountMap.size());
-        } catch (Exception e) {
-            e.printStackTrace();
+            borrowCountMap.put(borrowerID, borrowCount);
         }
-    }
 
+    }
 
 
     public void setLibraryController(LibraryController controller) {
@@ -357,9 +291,18 @@ public class ViewUserBookInfoController  {
         historyLogTable = historyLog;
         finesTable = fines;
     }
-    public void setDatabaseConnection(Connection databaseConnection) {
+
+    public void setDatabaseConnection(Connection databaseConnection) throws SQLException {
+        try {
+            setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
+                    new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
+                    new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
+                    new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
+                    new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         this.databaseConnection = databaseConnection;
-        System.out.println("setDatabaseConnection() called. Database connection: " + databaseConnection);
         if (this.databaseConnection != null) {
             loadBorrowerDataFromDatabase();
             loadBorrowerContactDataFromDatabase();

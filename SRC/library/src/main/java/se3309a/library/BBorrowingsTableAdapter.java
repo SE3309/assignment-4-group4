@@ -195,8 +195,36 @@ public class BBorrowingsTableAdapter implements DataStore {
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
-    }
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+            //  Create a string with a SELECT statement
+            String command = "SELECT borrowerID, COUNT(*) AS borrowCount FROM borrowings GROUP BY borrowerID";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+            while (result.next()) {
+                Borrowings borrowings = new Borrowings();
+                Borrower borrower = new Borrower();
+                borrowings.setBorrower(borrower);
+                borrowings.setBorrowCount(result.getInt("borrowCount"));
+                borrowings.getBorrower().setBorrowerID(result.getInt("borrowerID"));
+
+                list.add(borrowings);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }    }
 
     @Override
     public List<Object> getAllRecords(String referencedObject) throws SQLException {
