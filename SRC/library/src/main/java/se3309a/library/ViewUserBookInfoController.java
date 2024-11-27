@@ -1,5 +1,6 @@
 package se3309a.library;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,6 +46,7 @@ public class ViewUserBookInfoController  {
     private LibraryController libraryController;
     final ObservableList<String> data = FXCollections.observableArrayList();
     private Map<String, String> borrowerContactMap = new HashMap<>();
+    private Map<Integer, Integer> borrowCountMap = new HashMap<>();
 
     private ObservableList<BorrowerContact> borrowerContactList = FXCollections.observableArrayList();
     private Connection databaseConnection;
@@ -125,6 +127,12 @@ public class ViewUserBookInfoController  {
             String name = borrowerContactMap.get(email); // Fetch name from map using email
             return new SimpleStringProperty(name != null ? name : "Unknown");
         });
+        numOfBooksBorrowedColumn.setCellValueFactory(cellData -> {
+            int borrowerID = cellData.getValue().getBorrowerID(); // Get Borrower ID
+            int borrowCount = borrowCountMap.getOrDefault(borrowerID, 0); // Fetch count from map
+            return new SimpleIntegerProperty(borrowCount); // Return as a property for binding
+        });
+
 
         // Bind borrower list to the TableView
         tableView.setItems(borrowerList);
@@ -132,6 +140,7 @@ public class ViewUserBookInfoController  {
         // Load data
         loadBorrowerContactDataFromDatabase(); // Load BorrowerContact data first
         loadBorrowerDataFromDatabase();       // Load Borrower data
+        preloadBorrowingCounts();
     }
 
     private void loadBorrowerContactDataFromDatabase() {
@@ -196,6 +205,35 @@ public class ViewUserBookInfoController  {
         }
     }
 
+    private void preloadBorrowingCounts() {
+        if (databaseConnection == null) {
+            System.err.println("Database connection is not initialized.");
+            return;
+        }
+
+        borrowCountMap.clear();
+
+        String query = "SELECT borrowerID, COUNT(*) AS borrowCount FROM borrowings GROUP BY borrowerID";
+
+        try (PreparedStatement stmt = databaseConnection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int borrowerID = rs.getInt("borrowerID");
+                int borrowCount = rs.getInt("borrowCount");
+                borrowCountMap.put(borrowerID, borrowCount);
+
+                // Log the borrowing count for debugging
+                System.out.println("BorrowerID = " + borrowerID + ", BorrowCount = " + borrowCount);
+            }
+
+            System.out.println("Total Borrow Counts Preloaded: " + borrowCountMap.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public void setLibraryController(LibraryController controller) {
         libraryController = controller;
@@ -226,6 +264,7 @@ public class ViewUserBookInfoController  {
         if (this.databaseConnection != null) {
             loadBorrowerDataFromDatabase();
             loadBorrowerContactDataFromDatabase();
+            preloadBorrowingCounts();
 
         }
     }

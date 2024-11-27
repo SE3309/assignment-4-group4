@@ -105,7 +105,7 @@ public class FindBookBorrowingHistoryController implements Initializable {
 
         try {
             // to retrieve borrower names , I will be cross-referencing borrower,borrowings and borrower contact
-            // Get Borrower IDs for the Selected ISBN
+            // first, Get Borrower IDs for the Selected ISBN
             String borrowerIdQuery = "SELECT borrowerID FROM borrowings WHERE ISBN = ?";
             PreparedStatement borrowerIdStmt = databaseConnection.prepareStatement(borrowerIdQuery);
             borrowerIdStmt.setString(1, isbn);
@@ -114,7 +114,7 @@ public class FindBookBorrowingHistoryController implements Initializable {
             while (borrowerIdResultSet.next()) {
                 int borrowerID = borrowerIdResultSet.getInt("borrowerID");
 
-                // Get Email for the Borrower ID
+                // second, Get Email for the Borrower ID
                 String emailQuery = "SELECT bEmail FROM borrower WHERE borrowerID = ?";
                 PreparedStatement emailStmt = databaseConnection.prepareStatement(emailQuery);
                 emailStmt.setInt(1, borrowerID);
@@ -123,7 +123,7 @@ public class FindBookBorrowingHistoryController implements Initializable {
                 if (emailResultSet.next()) {
                     String email = emailResultSet.getString("bEmail");
 
-                    // Get Name from BorrowerContact
+                    // third, Get Name from BorrowerContact
                     String nameQuery = "SELECT bName FROM borrowerContact WHERE bEmail = ?";
                     PreparedStatement nameStmt = databaseConnection.prepareStatement(nameQuery);
                     nameStmt.setString(1, email);
