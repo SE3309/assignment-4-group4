@@ -3,10 +3,10 @@ package se3309a.library;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.event.ActionEvent;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -14,8 +14,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
-
-public class CreateReviewController implements Initializable {
+public class viewReviewsController implements Initializable {
     private DataStore bookTable;
     private DataStore bookAuthorTable;
     private DataStore bookGenreTable;
@@ -33,39 +32,34 @@ public class CreateReviewController implements Initializable {
     private LibraryController libraryController;
     final ObservableList<String> data = FXCollections.observableArrayList();
     private Borrower borrower;
+
     private Book book;
-    @FXML
-    private ComboBox<Integer> ratingComboBox;  // ComboBox for rating 1-10
-    @FXML
-    private TextField reviewTextField;           // TextArea for entering the review text
 
     @FXML
-    private TableColumn<Reviews, String> borrowerEmailColumn;
+    private Button backBtn;
     @FXML
-    private TableColumn<Reviews, String> ISBNColumn;
+    private TextArea reviewTextArea;           // TextArea for entering the review text
+
     @FXML
     private TableColumn<Reviews, Integer> ratingColumn;
-
-    @FXML
-    private Button refreshButton;
 
     @FXML
     private TableColumn<Reviews, Date> reviewDateColumn;
 
     @FXML
-    private TableView<Object> reviewTableView;
+    private TableView<Object> viewReviewTable;
 
     @FXML
     private TableColumn<Reviews, String> reviewTextColumn;
 
     @FXML
-    private Button backButton;
-
-    private Reviews reviews = new Reviews();
-
-
-    public void setLibraryController(LibraryController controller) {
-        libraryController = controller;
+    private TableColumn<Reviews, String> isbnColumn;
+    @FXML
+    void close(ActionEvent event) {
+        // Get current stage reference
+        Stage stage = (Stage) backBtn.getScene().getWindow();
+        // Close stage
+        stage.close();
     }
 
     public void setDataStore(DataStore book, DataStore bookAuthor, DataStore bookGenre, DataStore bookBorrowings,
@@ -87,82 +81,17 @@ public class CreateReviewController implements Initializable {
         historyLogTable = historyLog;
         finesTable = fines;
     }
-    @FXML
-    void handleAddReview(ActionEvent event) throws SQLException {
-        createReview();
 
-    }
 
     public void setDataStore(DataStore reviews) {
         this.reviewsTable = reviews;
     }
-
+    public void setLibraryController(LibraryController controller) {
+        libraryController = controller;
+    }
     public void buildData(int borrowerID, String ISBN) {
         borrower.setBorrowerID(borrowerID);
         book.setISBN(ISBN);
-    }
-    private void showErrorMessage(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    @FXML
-    void close(ActionEvent event) {
-        // Get current stage reference
-        Stage stage = (Stage) backButton.getScene().getWindow();
-        // Close stage
-        stage.close();
-    }
-
-    public void createReview() throws SQLException {
-        // Validate inputs
-        Integer rating = ratingComboBox.getValue();
-        String reviewText = reviewTextField.getText();
-        if (rating == null || reviewText == null || reviewText.isEmpty()) {
-            showErrorMessage("Rating and review text are required.");
-            return;
-        }
-
-        if (borrower.getBorrowerID() == 0 || book.getISBN() == null) {
-            showErrorMessage("Borrower and book must be set.");
-            return;
-        }
-        // get review ids
-        List<Integer> keys = reviewsTable.getKeys();
-        Reviews newReview = new Reviews();
-
-        // if none, set this one to 1
-        if (keys.isEmpty()) {
-            newReview.setReviewID(1);
-            newReview.setBorrower(borrower);
-            newReview.setBook(book);
-            newReview.setReviewText(reviewText);
-            newReview.setRating(rating);
-            newReview.setReviewDate(new java.sql.Date(System.currentTimeMillis())); // Set current date
-            // add review
-            reviewsTable.addNewRecord(newReview);
-        } else {
-            // get the last review id
-            int max = keys.getLast();
-            max++; // increase it for this next one
-            newReview.setReviewID(max);
-            newReview.setBorrower(borrower);
-            newReview.setBook(book);
-            newReview.setReviewText(reviewText);
-            newReview.setRating(rating);
-            newReview.setReviewDate(new java.sql.Date(System.currentTimeMillis())); // Set current date
-            // add review
-            reviewsTable.addNewRecord(newReview);
-        }
-        reviewTableView.getItems().clear();
-        // Refresh the table
-        reviewTableView.setItems(getReviews());
-        // Clear the input fields
-        reviewTextField.clear();
-        ratingComboBox.setValue(null);
-        libraryController.displayAlert("Review added successfully.");
     }
 
 
@@ -178,14 +107,10 @@ public class CreateReviewController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+
         borrower = new Borrower();
         book = new Book();
-
-        Integer[] rates =
-                {1, 2, 3,
-                        4, 5, 6, 7, 8, 9, 10};
-        ratingComboBox.setItems(FXCollections
-                .observableArrayList(rates));
         try {
             setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                     new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
@@ -201,16 +126,15 @@ public class CreateReviewController implements Initializable {
                 cellData -> new SimpleObjectProperty(cellData.getValue().ratingProperty().get()));
         reviewTextColumn.setCellValueFactory(
                 cellData -> cellData.getValue().reviewTextProperty());
-        ISBNColumn.setCellValueFactory(
+        isbnColumn.setCellValueFactory(
                 cellData -> cellData.getValue().getBook().ISBNProperty());
         reviewDateColumn.setCellValueFactory(
                 cellData -> new SimpleObjectProperty<Date>(cellData.getValue().getReviewDate()));
 
-        reviewTableView.setItems(getReviews());
-
+        viewReviewTable.setItems(getReviews());
 
     }
-}
 
+}
 
 

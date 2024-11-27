@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.viewReviewsController">
+    <VBox layoutX="7.0" layoutY="117.0" prefHeight="410.0" prefWidth="613.0" spacing="10">
+
+        <!-- Table for Reviews -->
+        <TableView fx:id="viewReviewTable" prefHeight="301.0" prefWidth="503.0">
+            <!-- Columns -->
+            <columns>
+            <TableColumn fx:id="isbnColumn" prefWidth="117.0" text="ISBN" />
+                <!-- Rating Column -->
+                <TableColumn fx:id="ratingColumn" prefWidth="63.0" text="Rating" />
+                <!-- Review Text Column -->
+                <TableColumn fx:id="reviewTextColumn" minWidth="0.0" prefWidth="267.0" text="Review" />
+                <!-- Review Date Column -->
+                <TableColumn fx:id="reviewDateColumn" prefWidth="245.0" text="Review Date" />
+            </columns>
+        </TableView>
+
+        <!-- Buttons -->
+        <HBox spacing="10">
+            <Button fx:id="backBtn" onAction="#close" prefWidth="100" text="Back" />
+        </HBox>
+    </VBox>
+    <Label layoutX="31.0" layoutY="63.0" text="Reviews ">
+        <font>
+            <Font size="30.0" />
+        </font>
+    </Label>
+</AnchorPane>

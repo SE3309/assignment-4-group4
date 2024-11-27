@@ -73,7 +73,10 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
+
     public String DBPassword = "password";
+
+
     public String ISBN;
 
 
@@ -211,6 +214,28 @@ public class LibraryController implements Initializable {
         // add icon to the About window
         stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
         stage.setTitle("Create Review");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.show();
+    }
+
+    public void viewReview() throws Exception{
+        // load the fxml file (the UI elements)
+        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("viewReviews-view.fxml"));
+        // create the root node
+        Parent newUser = fxmlLoader.load();
+        viewReviewsController viewReviewsController = (viewReviewsController) fxmlLoader.getController();
+        viewReviewsController.setLibraryController(this);
+        viewReviewsController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
+                new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
+                new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
+                new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
+                new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+        // create new stage
+        Stage stage = new Stage();
+        stage.setScene(new Scene(newUser));
+        // add icon to the About window
+        stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
+        stage.setTitle("View Reviews");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
     }

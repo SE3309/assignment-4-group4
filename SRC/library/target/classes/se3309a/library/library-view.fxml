@@ -24,7 +24,7 @@
                </items></Menu>
                 <Menu fx:id="reviewsMenu" mnemonicParsing="false" text="Reviews">
                <items>
-                  <MenuItem fx:id="createReviewMenuItem" mnemonicParsing="false" onAction="#createReview" text="Create" />
+                  <MenuItem fx:id="viewReviewMenuItem" mnemonicParsing="false" onAction="#viewReview" text="View" />
                </items></Menu>
                 <Menu fx:id="accountInfoMenu" mnemonicParsing="false" text="View Account Info">
                     <items>
