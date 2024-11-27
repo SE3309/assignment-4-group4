@@ -1,6 +1,7 @@
 package se3309a.library;
 
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.event.ActionEvent;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ import java.util.Map;
 
 
 public class ViewUserBookInfoController  {
+    //table 1: declarations for viewing all users in database as well as how many books they have borrowed in total
     @FXML
     private ComboBox<String> criteriaCombo;
     @FXML
@@ -29,16 +32,27 @@ public class ViewUserBookInfoController  {
     @FXML
     private Label emailOrNameLabel;
     @FXML
-    private TableView<Borrower> tableView; // Update TableView to hold Borrower objects
+    private TableView<Borrower> tableView;
     @FXML
-    private TableColumn<Borrower, Number> idColumn; // Update column to hold Number type
+    private TableColumn<Borrower, Number> idColumn,numOfBooksBorrowedColumn;
     @FXML
     private TableColumn<Borrower, String> nameColumn, emailColumn;
-    @FXML
-    private TableColumn<Borrower, Number> numOfBooksBorrowedColumn;
 
+    // table 2: declarations for book history
     @FXML
-    private Button searchButton,viewBorrowingHistoryButton;
+    private TableColumn<Map<String, Object>, String> bookISBN; // ISBN as String
+    @FXML
+    private TableColumn<Map<String, Object>, String> bookTitleColumn; // Title as String
+    @FXML
+    private TableColumn<Map<String, Object>, Date> borrowDateColumn; // Borrow Date as Date
+    @FXML
+    private TableColumn<Map<String, Object>, Date> returnDateColumn; // Return Date as Date
+    @FXML
+    private TableView<Map<String, Object>> tableView2; // TableView holds Map rows
+    @FXML
+    private Label userNameLabel; // Displays user name
+
+
     private DataStore bookTable,bookAuthorTable,bookGenreTable,bookBorrowingsTable,staffTable,staffContactTable,borrowerTable,bBorrowingsTable,borrowerContactTable,genreTable,borrowingsTable,reviewsTable,historyLogTable,finesTable;
     // List to hold Borrower data
     private ObservableList<Borrower> borrowerList = FXCollections.observableArrayList();
@@ -50,6 +64,77 @@ public class ViewUserBookInfoController  {
 
     private ObservableList<BorrowerContact> borrowerContactList = FXCollections.observableArrayList();
     private Connection databaseConnection;
+
+
+    public void initialize() {
+        // Initialize the ComboBox with search criteria
+        criteriaCombo.getItems().addAll("Name", "Email", "BorrowerID");
+        criteriaCombo.setValue("BorrowerID"); //
+
+        // Add listener to ComboBox to update the label text
+        criteriaCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if ("Email".equals(newValue)) {
+                emailOrNameLabel.setText("Type Borrower Email:");
+            } else if ("Name".equals(newValue)) {
+                emailOrNameLabel.setText("Type Borrower Name:");
+            } else if ("BorrowerID".equals(newValue)) {
+                emailOrNameLabel.setText("Type BorrowerID:");
+            }
+        });
+        // Set up the TableView columns
+        // Bind the ID column to the Borrower ID property
+        idColumn.setCellValueFactory(cellData -> cellData.getValue().borrowerIDProperty());
+        emailColumn.setCellValueFactory(cellData -> cellData.getValue().bEmailProperty());
+
+        // Cross-reference emails for the name column
+        nameColumn.setCellValueFactory(cellData -> {
+            String email = cellData.getValue().getbEmail();
+            String name = borrowerContactMap.get(email); // Fetch name from map using email
+            return new SimpleStringProperty(name != null ? name : "Unknown");
+        });
+        numOfBooksBorrowedColumn.setCellValueFactory(cellData -> {
+            int borrowerID = cellData.getValue().getBorrowerID(); // Get Borrower ID
+            int borrowCount = borrowCountMap.getOrDefault(borrowerID, 0); // Fetch count from map
+            return new SimpleIntegerProperty(borrowCount); // Return as a property for binding
+        });
+
+
+        // Bind borrower list to the TableView
+        tableView.setItems(borrowerList);
+
+        // Load data
+        loadBorrowerContactDataFromDatabase(); // Load BorrowerContact data first
+        loadBorrowerDataFromDatabase();       // Load Borrower data
+        preloadBorrowingCounts();
+
+        // Add listener for table selection
+        tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Fetch the name directly from the nameColumn for the selected row
+                String name = nameColumn.getCellObservableValue(newValue).getValue();
+
+                // Update the userNameLabel
+                userNameLabel.setText(name);
+
+                // Log for debugging
+                System.out.println("Selected User Name: " + name);
+            }
+        });
+
+        // tableView2 columns
+        bookISBN.setCellValueFactory(cellData ->
+                new SimpleStringProperty((String) cellData.getValue().get("ISBN")));
+
+        bookTitleColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty((String) cellData.getValue().get("Title")));
+
+        borrowDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>((Date) cellData.getValue().get("BorrowDate")));
+
+        returnDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>((Date) cellData.getValue().get("ReturnDate")));
+
+    }
 
     public void search(ActionEvent event) {
         String searchText = searchField.getText().trim().toLowerCase(); // Get the text from the search field
@@ -95,52 +180,66 @@ public class ViewUserBookInfoController  {
         // Log the search results
         System.out.println("Search completed. Total matches found: " + filteredList.size());
     }
-
     public void viewUserBookHistory(ActionEvent event) {
-        // Add your logic for viewing borrowing history
-        System.out.println("View User Book History button clicked");
-    }
+        // Get selected borrower from tableView
+        Borrower selectedBorrower = tableView.getSelectionModel().getSelectedItem();
 
-    public void initialize() {
-        // Initialize the ComboBox with search criteria
-        criteriaCombo.getItems().addAll("Name", "Email", "BorrowerID");
-        criteriaCombo.setValue("BorrowerID"); //
+        if (selectedBorrower == null) {
+            System.out.println("No borrower selected.");
+            return;
+        }
 
-        // Add listener to ComboBox to update the label text
-        criteriaCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if ("Email".equals(newValue)) {
-                emailOrNameLabel.setText("Type Borrower Email:");
-            } else if ("Name".equals(newValue)) {
-                emailOrNameLabel.setText("Type Borrower Name:");
-            } else if ("BorrowerID".equals(newValue)) {
-                emailOrNameLabel.setText("Type BorrowerID:");
+        int borrowerID = selectedBorrower.getBorrowerID();
+
+        // Clear existing data in tableView2
+        tableView2.getItems().clear();
+
+        // SQL queries
+        String borrowingsQuery = "SELECT ISBN, borrowDate, returnDate FROM borrowings WHERE borrowerID = ?";
+        String bookQuery = "SELECT title FROM book WHERE ISBN = ?";
+
+        try (PreparedStatement borrowStmt = databaseConnection.prepareStatement(borrowingsQuery);
+             PreparedStatement bookStmt = databaseConnection.prepareStatement(bookQuery)) {
+
+            // Set borrowerID for borrowings query
+            borrowStmt.setInt(1, borrowerID);
+
+            ResultSet borrowingsResultSet = borrowStmt.executeQuery();
+
+            // ObservableList to hold the data for tableView2
+            ObservableList<Map<String, Object>> data = FXCollections.observableArrayList();
+
+            while (borrowingsResultSet.next()) {
+                String isbn = borrowingsResultSet.getString("ISBN");
+                Date borrowDate = borrowingsResultSet.getDate("borrowDate");
+                Date returnDate = borrowingsResultSet.getDate("returnDate");
+
+                // Fetch the book title using the ISBN
+                bookStmt.setString(1, isbn);
+                ResultSet bookResultSet = bookStmt.executeQuery();
+
+                String bookTitle = "Unknown"; // Default title
+                if (bookResultSet.next()) {
+                    bookTitle = bookResultSet.getString("title");
+                }
+
+                // Create a Map to hold this row's data
+                Map<String, Object> row = new HashMap<>();
+                row.put("ISBN", isbn);
+                row.put("Title", bookTitle);
+                row.put("BorrowDate", borrowDate);
+                row.put("ReturnDate", returnDate);
+
+                // Add the row to the ObservableList
+                data.add(row);
             }
-        });
-        // Set up the TableView columns
-        // Bind the ID column to the Borrower ID property
-        idColumn.setCellValueFactory(cellData -> cellData.getValue().borrowerIDProperty());
-        emailColumn.setCellValueFactory(cellData -> cellData.getValue().bEmailProperty());
 
-        // Cross-reference emails for the name column
-        nameColumn.setCellValueFactory(cellData -> {
-            String email = cellData.getValue().getbEmail();
-            String name = borrowerContactMap.get(email); // Fetch name from map using email
-            return new SimpleStringProperty(name != null ? name : "Unknown");
-        });
-        numOfBooksBorrowedColumn.setCellValueFactory(cellData -> {
-            int borrowerID = cellData.getValue().getBorrowerID(); // Get Borrower ID
-            int borrowCount = borrowCountMap.getOrDefault(borrowerID, 0); // Fetch count from map
-            return new SimpleIntegerProperty(borrowCount); // Return as a property for binding
-        });
+            // Set the data to tableView2
+            tableView2.setItems(data);
 
-
-        // Bind borrower list to the TableView
-        tableView.setItems(borrowerList);
-
-        // Load data
-        loadBorrowerContactDataFromDatabase(); // Load BorrowerContact data first
-        loadBorrowerDataFromDatabase();       // Load Borrower data
-        preloadBorrowingCounts();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadBorrowerContactDataFromDatabase() {
@@ -268,4 +367,6 @@ public class ViewUserBookInfoController  {
 
         }
     }
+
+
 }
