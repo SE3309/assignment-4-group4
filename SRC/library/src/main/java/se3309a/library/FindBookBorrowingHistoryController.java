@@ -1,5 +1,6 @@
 package se3309a.library;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,16 +15,17 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class FindBookBorrowingHistoryController implements Initializable {
-
     // Database-related objects
+    @FXML
+    private TableView<String> borrowerTableList; // Holds the borrower names
+    @FXML
+    private TableColumn<String, String> borrowerNameColumn; // Column for borrower names
+
+    private ObservableList<String> borrowerNames = FXCollections.observableArrayList();
+
     private Connection databaseConnection;
     private DataStore bookTable, bookAuthorTable, bookGenreTable, bookBorrowingsTable, staffTable, staffContactTable;
-    private DataStore borrowerTable;
-    private DataStore bBorrowingsTable;
-    private DataStore borrowerContactTable;
-    private DataStore genreTable;
-    private DataStore borrowingsTable;
-    private DataStore reviewsTable, historyLogTable, finesTable;
+    private DataStore borrowerTable,bBorrowingsTable,borrowerContactTable,genreTable,borrowingsTable,reviewsTable, historyLogTable, finesTable;
 
     private LibraryController libraryController;
     @FXML
@@ -77,6 +79,67 @@ public class FindBookBorrowingHistoryController implements Initializable {
                 avgDurationLabel.setText("N/A");
             }
         });
+
+        // Bind the names to the column
+        borrowerNameColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()));
+        borrowerTableList.setItems(borrowerNames);
+
+        // Add listener for book selection
+        bookTableList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                String selectedISBN = ((Book) newValue).getISBN();
+                populateBorrowerNames(selectedISBN);
+            } else {
+                borrowerNames.clear();
+            }
+        });
+    }
+
+    private void populateBorrowerNames(String isbn) {
+        if (databaseConnection == null) {
+            System.err.println("Database connection is not initialized.");
+            return;
+        }
+
+        borrowerNames.clear();
+
+        try {
+            // to retrieve borrower names , I will be cross-referencing borrower,borrowings and borrower contact
+            // Get Borrower IDs for the Selected ISBN
+            String borrowerIdQuery = "SELECT borrowerID FROM borrowings WHERE ISBN = ?";
+            PreparedStatement borrowerIdStmt = databaseConnection.prepareStatement(borrowerIdQuery);
+            borrowerIdStmt.setString(1, isbn);
+            ResultSet borrowerIdResultSet = borrowerIdStmt.executeQuery();
+
+            while (borrowerIdResultSet.next()) {
+                int borrowerID = borrowerIdResultSet.getInt("borrowerID");
+
+                // Get Email for the Borrower ID
+                String emailQuery = "SELECT bEmail FROM borrower WHERE borrowerID = ?";
+                PreparedStatement emailStmt = databaseConnection.prepareStatement(emailQuery);
+                emailStmt.setInt(1, borrowerID);
+                ResultSet emailResultSet = emailStmt.executeQuery();
+
+                if (emailResultSet.next()) {
+                    String email = emailResultSet.getString("bEmail");
+
+                    // Get Name from BorrowerContact
+                    String nameQuery = "SELECT bName FROM borrowerContact WHERE bEmail = ?";
+                    PreparedStatement nameStmt = databaseConnection.prepareStatement(nameQuery);
+                    nameStmt.setString(1, email);
+                    ResultSet nameResultSet = nameStmt.executeQuery();
+
+                    if (nameResultSet.next()) {
+                        String name = nameResultSet.getString("bName");
+                        borrowerNames.add(name); // Add to the observable list
+                    }
+                }
+            }
+
+            System.out.println("Total Borrower Names Loaded: " + borrowerNames.size());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateTimesBorrowed(String isbn) {
@@ -84,7 +147,6 @@ public class FindBookBorrowingHistoryController implements Initializable {
             timesBorrowedLabel.setText("N/A ");
             return;
         }
-
         try {
             int borrowCount = (int) borrowingsTable.findOneRecord(isbn, "");
 
@@ -107,7 +169,6 @@ public class FindBookBorrowingHistoryController implements Initializable {
             int duration = (int) bBorrowingsTable.findOneRecord2(isbn);
             int totalDays = 0; // Total sum of borrow durations
             int borrowCount = 0; // Number of borrow instances
-
 
             totalDays += duration; // Accumulate total duration
             borrowCount++; // Increment borrow count

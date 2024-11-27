@@ -118,7 +118,7 @@ public class ViewUserBookInfoController  {
         // Bind the ID column to the Borrower ID property
         idColumn.setCellValueFactory(cellData -> cellData.getValue().borrowerIDProperty());
         emailColumn.setCellValueFactory(cellData -> cellData.getValue().bEmailProperty());
-        // Cross-reference Borrower emails with names from BorrowerContact for the name column
+
         // Cross-reference emails for the name column
         nameColumn.setCellValueFactory(cellData -> {
             String email = cellData.getValue().getbEmail();
