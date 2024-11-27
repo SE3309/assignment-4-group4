@@ -73,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "rzanouda";
+    public String DBPassword = "pass";
     public String ISBN;
 
 
@@ -325,25 +325,26 @@ public class LibraryController implements Initializable {
     }
 
     // Shahed
-    public void viewUserBookInfo() throws Exception{
-        // load the fxml file (the UI elements)
+    public void viewUserBookInfo() throws Exception {
+        // Load the FXML file
         FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("viewUserBookInfo-view.fxml"));
-        // create the root node
-        Parent newUser = fxmlLoader.load();
-        ViewUserBookInfoController viewUserBookInfoController = (ViewUserBookInfoController) fxmlLoader.getController();
-        viewUserBookInfoController.setLibraryController(this);
-        viewUserBookInfoController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
-                new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
-                new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
-                new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
-                new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
-        // create new stage
+
+        // Load the root node and get the controller
+        Parent root = fxmlLoader.load();
+        ViewUserBookInfoController controller = fxmlLoader.getController();
+
+        // Pass the database connection
+        if (conn != null) {
+            controller.setDatabaseConnection(conn);
+        } else {
+            System.err.println("Database connection is not initialized in LibraryController.");
+            throw new Exception("Database connection is null.");
+        }
+
+        // Set up and show the stage
         Stage stage = new Stage();
-        stage.setScene(new Scene(newUser));
-        // add icon to the About window
-        stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
+        stage.setScene(new Scene(root));
         stage.setTitle("View User Book Info");
-        stage.initModality(Modality.APPLICATION_MODAL);
         stage.show();
     }
 
