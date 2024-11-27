@@ -10,19 +10,20 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class FindBookBorrowingHistoryController implements Initializable {
 
     // Database-related objects
     private Connection databaseConnection;
-    private DataStore bookTable,bookAuthorTable, bookGenreTable, bookBorrowingsTable,staffTable,staffContactTable;
+    private DataStore bookTable, bookAuthorTable, bookGenreTable, bookBorrowingsTable, staffTable, staffContactTable;
     private DataStore borrowerTable;
     private DataStore bBorrowingsTable;
     private DataStore borrowerContactTable;
     private DataStore genreTable;
     private DataStore borrowingsTable;
-    private DataStore reviewsTable,historyLogTable,finesTable;
+    private DataStore reviewsTable, historyLogTable, finesTable;
 
     private LibraryController libraryController;
     @FXML
@@ -32,15 +33,15 @@ public class FindBookBorrowingHistoryController implements Initializable {
     private ComboBox<String> searchTypeCombo;
 
     @FXML
-    private TableView<Book> bookTableList;
+    private TableView<Object> bookTableList;
 
     @FXML
-    private TableColumn<Book, String> titleColumn, isbnColumn,authorColumn;
+    private TableColumn<Book, String> titleColumn, isbnColumn, authorColumn;
 
     @FXML
     private TextField searchField;
 
-    private ObservableList<Book> filteredBooks = FXCollections.observableArrayList(); // Filtered results
+    private ObservableList<Object> filteredBooks = FXCollections.observableArrayList(); // Filtered results
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -68,9 +69,9 @@ public class FindBookBorrowingHistoryController implements Initializable {
         // Add listener for row selection
         bookTableList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                System.out.println("Selected ISBN: " + newValue.getISBN()); // Debugging step
-                updateTimesBorrowed(newValue.getISBN());
-                updateAverageBorrowDuration(newValue.getISBN());
+                System.out.println("Selected ISBN: " + ((Book) newValue).getISBN()); // Debugging step
+                updateTimesBorrowed(((Book) newValue).getISBN());
+                updateAverageBorrowDuration(((Book) newValue).getISBN());
             } else {
                 timesBorrowedLabel.setText("N/A ");
                 avgDurationLabel.setText("N/A");
@@ -85,18 +86,11 @@ public class FindBookBorrowingHistoryController implements Initializable {
         }
 
         try {
-            String query = "SELECT COUNT(*) AS borrowCount FROM borrowings WHERE ISBN = ?";
-            PreparedStatement stmt = databaseConnection.prepareStatement(query);
-            stmt.setString(1, isbn);
-            ResultSet rs = stmt.executeQuery();
+            int borrowCount = (int) borrowingsTable.findOneRecord(isbn, "");
 
-            if (rs.next()) {
-                int borrowCount = rs.getInt("borrowCount");
-                System.out.println("Borrow Count for ISBN " + isbn + ": " + borrowCount); // Debug
-                timesBorrowedLabel.setText("" + borrowCount);
-            } else {
-                timesBorrowedLabel.setText("0");
-            }
+            System.out.println("Borrow Count for ISBN " + isbn + ": " + borrowCount); // Debug
+            timesBorrowedLabel.setText("" + borrowCount);
+
         } catch (Exception e) {
             e.printStackTrace();
             timesBorrowedLabel.setText("Error retrieving data");
@@ -110,26 +104,13 @@ public class FindBookBorrowingHistoryController implements Initializable {
         }
 
         try {
-            // SQL query to fetch all borrow durations
-            String query = """
-                SELECT DATEDIFF(returnDate, borrowDate) AS borrowDuration
-                FROM borrowings
-                WHERE ISBN = ? AND returnDate IS NOT NULL
-                """;
-
-            PreparedStatement stmt = databaseConnection.prepareStatement(query);
-            stmt.setString(1, isbn);
-            ResultSet rs = stmt.executeQuery();
-
+            int duration = (int) bBorrowingsTable.findOneRecord2(isbn);
             int totalDays = 0; // Total sum of borrow durations
             int borrowCount = 0; // Number of borrow instances
 
-            // Iterate through results
-            while (rs.next()) {
-                int duration = rs.getInt("borrowDuration");
-                totalDays += duration; // Accumulate total duration
-                borrowCount++; // Increment borrow count
-            }
+
+            totalDays += duration; // Accumulate total duration
+            borrowCount++; // Increment borrow count
 
             if (borrowCount > 0) {
                 double avgDuration = (double) totalDays / borrowCount; // Calculate average
@@ -167,17 +148,9 @@ public class FindBookBorrowingHistoryController implements Initializable {
 
     private void loadAllBooks() {
         try {
-            String query = "SELECT b.ISBN, b.title, a.author FROM book b JOIN bookAuthor a ON b.ISBN = a.ISBN";
-            PreparedStatement stmt = databaseConnection.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Book book = new Book();
-                book.setISBN(rs.getString("ISBN")); // Ensure ISBN is set
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                filteredBooks.add(book);
-            }
+            List<Object> list = bookBorrowingsTable.getAllRecords();
+            filteredBooks = FXCollections.observableArrayList(list);
+            bookTableList.setItems(filteredBooks);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,18 +158,9 @@ public class FindBookBorrowingHistoryController implements Initializable {
 
     private void searchByAuthor(String authorName) {
         try {
-            String query = "SELECT b.ISBN, b.title, a.author FROM book b JOIN bookAuthor a ON b.ISBN = a.ISBN WHERE LOWER(a.author) LIKE ?";
-            PreparedStatement stmt = databaseConnection.prepareStatement(query);
-            stmt.setString(1, "%" + authorName + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Book book = new Book();
-                book.setISBN(rs.getString("ISBN")); // Ensure ISBN is set
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                filteredBooks.add(book);
-            }
+            List<Object> list = bookBorrowingsTable.getAllRecords("%" + authorName + "%");
+            filteredBooks = FXCollections.observableArrayList(list);
+            bookTableList.setItems(filteredBooks);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,18 +168,9 @@ public class FindBookBorrowingHistoryController implements Initializable {
 
     private void searchByTitle(String title) {
         try {
-            String query = "SELECT b.ISBN, b.title, a.author FROM book b JOIN bookAuthor a ON b.ISBN = a.ISBN WHERE LOWER(b.title) LIKE ?";
-            PreparedStatement stmt = databaseConnection.prepareStatement(query);
-            stmt.setString(1, "%" + title + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Book book = new Book();
-                book.setISBN(rs.getString("ISBN")); // Ensure ISBN is set
-                book.setTitle(rs.getString("title"));
-                book.setAuthor(rs.getString("author"));
-                filteredBooks.add(book);
-            }
+            List<Object> list = bookBorrowingsTable.getAllRecords("%" + title + "%", "", "");
+            filteredBooks = FXCollections.observableArrayList(list);
+            bookTableList.setItems(filteredBooks);
         } catch (Exception e) {
             e.printStackTrace();
         }

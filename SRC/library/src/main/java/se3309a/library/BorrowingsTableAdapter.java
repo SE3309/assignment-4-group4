@@ -197,7 +197,25 @@ public class BorrowingsTableAdapter implements DataStore {
 
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
-        return null;
+        int borrowCount = 0;
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT COUNT(*) AS borrowCount FROM borrowings WHERE ISBN = '" + key1 + "'";
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+             borrowCount = rs.getInt("borrowCount");
+        }
+        connection.close();
+        return borrowCount;
     }
 
     // Get a String list

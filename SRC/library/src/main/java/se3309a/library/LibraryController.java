@@ -73,7 +73,7 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "pass";
+    public String DBPassword = "password";
     public String ISBN;
 
 
@@ -175,6 +175,7 @@ public class LibraryController implements Initializable {
         Parent newUser = fxmlLoader.load();
         CheckFinesController checkFinesController = (CheckFinesController) fxmlLoader.getController();
         checkFinesController.setLibraryController(this);
+        checkFinesController.buildData(borrowerId);
         checkFinesController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
@@ -309,6 +310,7 @@ public class LibraryController implements Initializable {
         Parent newUser = fxmlLoader.load();
         ViewBookHistoryController viewBookHistoryController = (ViewBookHistoryController) fxmlLoader.getController();
         viewBookHistoryController.setLibraryController(this);
+        viewBookHistoryController.buildData(borrowerId);
         viewBookHistoryController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
                 new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
                 new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),

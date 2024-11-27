@@ -13,7 +13,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ViewBookHistoryController implements Initializable {
@@ -32,7 +34,6 @@ public class ViewBookHistoryController implements Initializable {
     private DataStore historyLogTable;
     private DataStore finesTable;
     private LibraryController libraryController;
-    final ObservableList<String> data = FXCollections.observableArrayList();
 
     @FXML
     private TableColumn<Borrowings, Integer> borrowerIDColumn;
@@ -50,7 +51,7 @@ public class ViewBookHistoryController implements Initializable {
     private TableColumn<Borrowings, Integer> fineIDColumn;
 
     @FXML
-    private TableView<Borrowings> bookHistoryTable;
+    private TableView<Object> bookHistoryTable;
 
     @FXML
     private TableColumn<Borrowings, Date> returnDateColumn;
@@ -58,35 +59,22 @@ public class ViewBookHistoryController implements Initializable {
     @FXML
     private TableColumn<Borrowings, String> statusColumn;
 
-    @FXML
-    private Button button;
+    Borrower borrower;
 
     @FXML
-    private TextField emailField;
-
-    @FXML
-    void onEmailEntered(ActionEvent event) throws SQLException {
-        String enteredEmail = emailField.getText().trim();  // Get the email from the input field
-
-        if (!enteredEmail.isEmpty()) {
-            // Call the method to query the database for borrowerId based on the email
-            int borrowerId = getBorrowerIdByEmail(enteredEmail);
-
-            if (borrowerId != -1) {
-                System.out.println("Borrower ID: " + borrowerId);
-
-                // Query fines table using the borrowerId
-                loadHistoryForBorrower(borrowerId);
-            } else {
-                System.out.println("No borrower found with the email: " + enteredEmail);
-            }
+    void printHistory(ActionEvent event) throws SQLException {
+        bookHistoryTable.getItems().clear();
+        // Retrieve the borrowing ID for the borrower
+        Borrowings borrowing = (Borrowings) borrowingsTable.findOneRecord(String.valueOf(borrower.getBorrowerID()));
+        if (borrowing == null || borrowing.getBorrowingID() <= 0) {
+            libraryController.displayAlert("No book history!");
         } else {
-            System.out.println("Please enter an email.");
+            List<Object> list = new ArrayList<>();
+            list.add(borrowing);
+            // Add the fine to the ObservableList
+            bookHistoryTable.setItems(FXCollections.observableArrayList(list));
         }
     }
-
-    Borrowings borrowings = new Borrowings();
-    private ObservableList<Borrowings> borrowingsData = FXCollections.observableArrayList();
 
     public void setLibraryController(LibraryController controller) {
         libraryController = controller;
@@ -112,64 +100,13 @@ public class ViewBookHistoryController implements Initializable {
         finesTable = fines;
     }
 
-    private int getBorrowerIdByEmail(String email) throws SQLException {
-        // Find the borrower using the email
-        Borrower borrower = (Borrower) borrowerTable.findOneRecord(email);
-
-        // Check if the borrower exists
-        if (borrower == null) {
-            System.out.println("No borrower found with email: " + email);
-            return -1;  // Indicate that no borrowing ID is found
-        }
-
-        // Retrieve the borrowing ID for the borrower
-        Borrowings borrowing = (Borrowings) borrowingsTable.findOneRecord(String.valueOf(borrower.getBorrowerID()));
-        if (borrowing == null) {
-            System.out.println("No borrowing history for borrower with email: " + email);
-            return -1;  // Indicate no borrowing history
-        }
-
-        return borrower.getBorrowerID();  // Return the borrowing ID
-    }
-    private void loadHistoryForBorrower(int borrowingId) throws SQLException {
-        borrowings = (Borrowings) borrowingsTable.findOneRecord(String.valueOf(borrowingId));
-
-        if (borrowings == null || borrowings.getBorrowingID() <= 0) {
-            borrowingsData.clear();
-            displayAlert("No borrowings found!");
-
-        } else {
-            borrowingsData.clear();  // Clear existing data before adding new fines
-
-            // Add the fine to the ObservableList
-            borrowingsData.add(borrowings);
-
-            // Print the fine information to the console using the getter methods
-            System.out.println(
-                    "Borrowing ID: " + borrowings.getBorrowingID() +
-                    ", Borrow Date: " + borrowings.getBorrowDate() +
-                    ", Return Date: " + borrowings.getReturnDate() +
-                    ", Status: " + borrowings.getStatus() +
-                    ", Borrower ID: " + borrowings.getBorrower().getBorrowerID() +
-                    ", ISBN: " + borrowings.getBook().getISBN() +
-                    ", Fine ID: " + borrowings.getFine().getFineID()
-                    );
-
-                    // Set the data for the TableView
-            bookHistoryTable.setItems(borrowingsData);
-        }
-    }
-
-    private void displayAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    public void buildData(int borrowerID) {
+        borrower.setBorrowerID(borrowerID);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        borrower = new Borrower();
         borrowingIDColumn.setCellValueFactory(new PropertyValueFactory<Borrowings, Integer>("borrowingID"));
         borrowDateColumn.setCellValueFactory(new PropertyValueFactory<Borrowings, Date>("borrowDate"));
         returnDateColumn.setCellValueFactory(new PropertyValueFactory<Borrowings, Date>("returnDate"));
@@ -204,12 +141,6 @@ public class ViewBookHistoryController implements Initializable {
                 return new SimpleIntegerProperty(-1).asObject(); // Default or error value
             }
         });
-        bookHistoryTable.setItems(FXCollections.observableArrayList());
     }
 
-    ObservableList<Borrowings> observableList= FXCollections.observableArrayList(
-            borrowings
-    );
 }
-
-

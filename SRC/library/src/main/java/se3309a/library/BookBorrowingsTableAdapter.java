@@ -159,12 +159,76 @@ public class BookBorrowingsTableAdapter implements DataStore{
 
     @Override
     public List<Object> getAllRecords() throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title, a.author " +
+                    "FROM book b JOIN bookAuthor a ON b.ISBN = a.ISBN";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public List<Object> getAllRecords(String referencedObject) throws SQLException {
-        return null;
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title, a.author FROM book b " +
+                    "JOIN bookAuthor a ON b.ISBN = a.ISBN " +
+                    "WHERE LOWER(a.author) LIKE '"
+                    + referencedObject + "'";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -173,6 +237,38 @@ public class BookBorrowingsTableAdapter implements DataStore{
     }
     @Override
     public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
-        return null;
-    }
+        List<Object> list = new ArrayList<>();
+        ResultSet result;
+
+        try {
+            connection = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/library",
+                    "root",
+                    libraryController.getDBPassword());
+
+            // Create a Statement object
+            Statement stmt = connection.createStatement();
+
+            // Create a string with a SELECT statement
+            String command = "SELECT b.ISBN, b.title, a.author " +
+                    "FROM book b JOIN bookAuthor a ON b.ISBN = a.ISBN " +
+                    "WHERE LOWER(b.title) LIKE '"
+                    + referencedObject + "'";
+
+            // Execute the statement and return the result
+            result = stmt.executeQuery(command);
+
+            while (result.next()) {
+                Book book = new Book();
+                book.setISBN(result.getString("ISBN"));
+                book.setTitle(result.getString("title"));
+                book.setAuthor(result.getString("author"));
+
+                list.add(book);
+            }
+            connection.close();
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }    }
 }

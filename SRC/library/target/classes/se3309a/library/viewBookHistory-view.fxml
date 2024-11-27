@@ -4,13 +4,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.ViewBookHistoryController">
-    <Label layoutX="25.0" layoutY="66.0" text="Enter Email:" />
-    <TextField fx:id="emailField" layoutX="87.0" layoutY="62.0" onAction="#onEmailEntered" prefWidth="160" promptText="Enter email here" />
-    <Button text="View Book History" layoutX="247.0" layoutY="62.0" onAction="#onEmailEntered" />
+    <Button layoutX="25.0" layoutY="65.0" onAction="#printHistory" text="View Book History" />
 
 
     <!-- Title -->

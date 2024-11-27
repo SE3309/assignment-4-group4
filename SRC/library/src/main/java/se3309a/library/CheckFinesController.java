@@ -4,17 +4,16 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
 import java.sql.*;
 import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class CheckFinesController implements Initializable {
@@ -33,7 +32,6 @@ public class CheckFinesController implements Initializable {
     private DataStore historyLogTable;
     private DataStore finesTable;
     private LibraryController libraryController;
-    final ObservableList<String> data = FXCollections.observableArrayList();
 
     @FXML
     private TableColumn<Fines, Integer> fineIdColumn;
@@ -51,14 +49,23 @@ public class CheckFinesController implements Initializable {
     private TableColumn<Fines, Double> fineAmountColumn;
 
     @FXML
-    private TableView<Fines> fineTable;
+    private TableView<Object> fineTable;
+
+    Borrower borrower;
 
     @FXML
-    private TextField emailField;
+    private Button printBtn;
 
-    Fines fine = new Fines();
-
-    private ObservableList<Fines> finesData = FXCollections.observableArrayList();
+    @FXML
+    void print(ActionEvent event) throws SQLException {
+        Fines fines = (Fines) finesTable.findOneRecord(String.valueOf(borrower.getBorrowerID()));
+        List<Object> list = finesTable.getAllRecords(String.valueOf(borrower.getBorrowerID()));
+        if (fines == null || fines.getFineID() <= 0) {
+            libraryController.displayAlert("No fines!");
+        } else {
+            fineTable.setItems(FXCollections.observableArrayList(list));
+        }
+    }
 
     public void setLibraryController(LibraryController controller) {
         libraryController = controller;
@@ -84,67 +91,34 @@ public class CheckFinesController implements Initializable {
         finesTable = fines;
     }
 
-    @FXML
-    public void onEmailEntered() throws SQLException {
-        String enteredEmail = emailField.getText().trim();  // Get the email from the input field
+    // get current user's borrower id
+    public void buildData(int borrowerID) {
+        borrower.setBorrowerID(borrowerID);
+    }
 
-        if (!enteredEmail.isEmpty()) {
-            // Call the method to query the database for borrowerId based on the email
-            int borrowerId = getBorrowerIdByEmail(enteredEmail);
+    // get all fines
+    public ObservableList<Object> getFines() {
+        try {
+            List<Object> list = finesTable.getAllRecords(String.valueOf(borrower.getBorrowerID()));
+            return FXCollections.observableArrayList(list);
 
-            if (borrowerId != -1) {
-                System.out.println("Borrower ID: " + borrowerId);
-
-                // Query fines table using the borrowerId
-                loadFinesForBorrower(borrowerId);
-            } else {
-                System.out.println("No borrower found with the email: " + enteredEmail);
-            }
-        } else {
-            System.out.println("Please enter an email.");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
     }
-
-    private void loadFinesForBorrower(int borrowerId) throws SQLException {
-        fine = (Fines) finesTable.findOneRecord(String.valueOf(borrowerId));
-
-        if (fine == null || fine.getFineID() <= 0) {
-            finesData.clear();
-            displayAlert("No fines found!");
-
-        } else{
-            finesData.clear();  // Clear existing data before adding new fines
-
-            // Add the fine to the ObservableList
-            finesData.add(fine);
-
-            // Print the fine information to the console using the getter methods
-            System.out.println("Fine ID: " + fine.getFineID() +
-                    ", Borrower ID: " + fine.getBorrower().getBorrowerID() +
-                    ", Due Date: " + fine.getDueDate() +
-                    ", Date Paid: " + fine.getDatePaid());
-
-            // Set the data for the TableView
-            fineTable.setItems(finesData);
-        }
-    }
-
-    private void displayAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    // Method to query the borrowerId from the borrower table (already defined)
-    private int getBorrowerIdByEmail(String email) throws SQLException {
-      Borrower borrower = (Borrower) borrowerTable.findOneRecord(email);
-      return borrower.getBorrowerID();
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        borrower = new Borrower();
+        try {
+            setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
+                    new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
+                    new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
+                    new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
+                    new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         fineIdColumn.setCellValueFactory(new PropertyValueFactory<Fines, Integer>("fineID"));
         borrowerIdColumn.setCellValueFactory(cellData -> {
             Fines fine = cellData.getValue();
@@ -178,10 +152,5 @@ public class CheckFinesController implements Initializable {
             return new SimpleDoubleProperty(fineAmount).asObject();
         });
 
-        fineTable.setItems(FXCollections.observableArrayList());
     }
-
-    ObservableList<Fines> observableList= FXCollections.observableArrayList(
-          fine
-    );
 }

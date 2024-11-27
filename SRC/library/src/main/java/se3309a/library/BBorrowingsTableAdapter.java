@@ -4,9 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BBorrowingsTableAdapter implements DataStore{
+public class BBorrowingsTableAdapter implements DataStore {
     private Connection connection;
     LibraryController libraryController = new LibraryController();
+
     // private String DB_URL = "jdbc:derby:libraryDB";
     public BBorrowingsTableAdapter(Boolean reset) throws SQLException {
         connection = DriverManager.getConnection(
@@ -93,7 +94,7 @@ public class BBorrowingsTableAdapter implements DataStore{
         bBorrowings.setBorrowings(borrowings);
 
         ResultSet rs;
-         connection = DriverManager.getConnection(
+        connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/library",
                 "root",
                 libraryController.getDBPassword());
@@ -101,7 +102,7 @@ public class BBorrowingsTableAdapter implements DataStore{
         // Create a Statement object
         Statement stmt = connection.createStatement();
         // Create a string with a SELECT statement
-        String command = "SELECT * FROM bBorrowings WHERE borrowerID = '" + key +"'";
+        String command = "SELECT * FROM bBorrowings WHERE borrowerID = '" + key + "'";
         // Execute the statement and return the result
         rs = stmt.executeQuery(command);
         while (rs.next()) {
@@ -115,8 +116,31 @@ public class BBorrowingsTableAdapter implements DataStore{
 
     @Override
     public Object findOneRecord2(String key) throws SQLException {
-        return null;
+        int duration = 0;
+
+        ResultSet rs;
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
+
+        // Create a Statement object
+        Statement stmt = connection.createStatement();
+        // Create a string with a SELECT statement
+        String command = "SELECT DATEDIFF(returnDate, borrowDate) AS borrowDuration " +
+                "FROM borrowings " +
+                "WHERE ISBN = '" + key + "'" +
+                "AND returnDate IS NOT NULL";
+
+        // Execute the statement and return the result
+        rs = stmt.executeQuery(command);
+        while (rs.next()) {
+            duration = rs.getInt("borrowDuration");
+        }
+        connection.close();
+        return duration;
     }
+
     @Override
     public Object findOneRecord(String key1, String key2) throws SQLException {
         return null;
@@ -127,7 +151,7 @@ public class BBorrowingsTableAdapter implements DataStore{
         return false;
     }
 
-        // Get a String list
+    // Get a String list
     @Override
     public List<Integer> getKeys() throws SQLException {
         List<Integer> list = new ArrayList<>();
@@ -163,6 +187,7 @@ public class BBorrowingsTableAdapter implements DataStore{
                 + key + "'");
         connection.close();
     }
+
     @Override
     public void deleteRecords(Object referencedObject) throws SQLException {
 
@@ -177,6 +202,7 @@ public class BBorrowingsTableAdapter implements DataStore{
     public List<Object> getAllRecords(String referencedObject) throws SQLException {
         return null;
     }
+
     @Override
     public List<Object> getAllRecords(String referencedObject, String referencedObject2, String referenceObject3) throws SQLException {
         return null;
