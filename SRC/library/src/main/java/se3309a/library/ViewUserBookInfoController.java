@@ -50,8 +50,48 @@ public class ViewUserBookInfoController  {
     private Connection databaseConnection;
 
     public void search(ActionEvent event) {
-        // Add your search logic here
-        System.out.println("Search button clicked");
+        String searchText = searchField.getText().trim().toLowerCase(); // Get the text from the search field
+        String selectedCriteria = criteriaCombo.getValue(); // Get the selected criteria from the ComboBox
+
+        if (searchText.isEmpty()) {
+            System.out.println("Search field is empty. Showing all records.");
+            tableView.setItems(borrowerList); // Reset to show all items
+            return;
+        }
+
+        ObservableList<Borrower> filteredList = FXCollections.observableArrayList();
+
+        for (Borrower borrower : borrowerList) {
+            switch (selectedCriteria) {
+                case "BorrowerID": // Search by ID
+                    if (String.valueOf(borrower.getBorrowerID()).contains(searchText)) {
+                        filteredList.add(borrower);
+                    }
+                    break;
+
+                case "Name": // Search by Name
+                    String name = borrowerContactMap.get(borrower.getbEmail());
+                    if (name != null && name.toLowerCase().contains(searchText)) {
+                        filteredList.add(borrower);
+                    }
+                    break;
+
+                case "Email": // Search by Email
+                    if (borrower.getbEmail().toLowerCase().contains(searchText)) {
+                        filteredList.add(borrower);
+                    }
+                    break;
+
+                default:
+                    System.out.println("Invalid search criteria selected.");
+            }
+        }
+
+        // Update the TableView with the filtered list
+        tableView.setItems(filteredList);
+
+        // Log the search results
+        System.out.println("Search completed. Total matches found: " + filteredList.size());
     }
 
     public void viewUserBookHistory(ActionEvent event) {
