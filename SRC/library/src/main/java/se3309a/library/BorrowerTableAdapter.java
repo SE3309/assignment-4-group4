@@ -131,7 +131,10 @@ public class BorrowerTableAdapter implements DataStore{
     @Override
     public void updateRecord(Object data) throws SQLException {
         Borrower borrower = (Borrower) data;
-        connection = DriverManager.getConnection(DB_URL);
+        connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/library",
+                "root",
+                libraryController.getDBPassword());
 
         Statement stmt = connection.createStatement();
         String command = "UPDATE borrower SET "

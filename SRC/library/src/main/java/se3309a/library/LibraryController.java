@@ -73,12 +73,15 @@ public class LibraryController implements Initializable {
     private Connection conn;
     private DataStore account;
     private int borrowerId;
-    public String DBPassword = "maira123";
+    public String DBPassword = "rzanouda";
     public String ISBN;
 
 
     public void setBorrowerId(int id){
         borrowerId = id;
+    }
+    public int getBorrowerID() {
+        return borrowerId;
     }
     public void setISBN(String isbn){
         ISBN =isbn;
@@ -362,24 +365,27 @@ public class LibraryController implements Initializable {
     }
 
     public void changePassword() throws Exception {
-//        account = new UserAccountTableAdapter(false);
-//        // load the fxml file (the UI elements)
-//        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("ChangePassword-view.fxml"));
-//
-//        // create the root node
-//        Parent changePassword = fxmlLoader.load();
-//        ChangePasswordController changePasswordController = (ChangePasswordController) fxmlLoader.getController();
-//        changePasswordController.setIPayrollController(this);
-//        changePasswordController.setDataStore(account);
-//
-//        // create new stage
-//        Stage stage = new Stage();
-//        stage.setScene(new Scene(changePassword));
-//        // add icon to the About window
-//        stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
-//        stage.setTitle("Change Password");
-//        stage.initModality(Modality.APPLICATION_MODAL);
-//        stage.show();
+        // load the fxml file (the UI elements)
+        FXMLLoader fxmlLoader = new FXMLLoader(LibraryController.class.getResource("ChangePassword-view.fxml"));
+
+        // create the root node
+        Parent changePassword = fxmlLoader.load();
+        ChangePasswordController changePasswordController = (ChangePasswordController) fxmlLoader.getController();
+        changePasswordController.setLibraryController(this);
+        changePasswordController.setDataStore(new BookTableAdapter(false), new BookAuthorTableAdapter(false),
+                new BookGenreTableAdapter(false), new BookBorrowingsTableAdapter(false), new StaffTableAdapter(false),
+                new StaffContactTableAdapter(false), new BorrowerTableAdapter(false), new BBorrowingsTableAdapter(false),
+                new BorrowerContactTableAdapter(false), new GenreTableAdapter(false), new BorrowingsTableAdapter(false),
+                new ReviewsTableAdapter(false), new HistoryLogTableAdapter(false), new FinesTableAdapter(false));
+
+        // create new stage
+        Stage stage = new Stage();
+        stage.setScene(new Scene(changePassword));
+        // add icon to the About window
+        stage.getIcons().add(new Image("file:src/main/resources/se3309a/library/books.png"));
+        stage.setTitle("Change Password");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.show();
     }
 
 
@@ -429,6 +435,7 @@ public class LibraryController implements Initializable {
         manageUserAccountsMenu.setDisable(false);
         userMenuItem.setVisible(true);
         createUserAccountMenuItem.setDisable(false);
+        changePasswordMenuItem.setDisable(true);
     }
 
     public void enableBorrowerControls() {
@@ -447,6 +454,8 @@ public class LibraryController implements Initializable {
         reviewsMenu.setDisable(false);
         accountInfoMenu.setDisable(false);
         userMenuItem.setVisible(true);
+        changePasswordMenuItem.setDisable(false);
+
 
     }
 

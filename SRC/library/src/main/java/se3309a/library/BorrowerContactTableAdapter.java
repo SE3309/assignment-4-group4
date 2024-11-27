@@ -57,7 +57,6 @@ public class BorrowerContactTableAdapter implements DataStore{
                 + "VALUES ('"
                 + borrowerContact.getBorrower().getbEmail() + "', '"
                 + borrowerContact.getName() + "')";
-        System.out.println(command);
         int rows = stmt.executeUpdate(command);
         connection.close();
     }
