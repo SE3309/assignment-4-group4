@@ -107,6 +107,9 @@ public class CreateBorrowerAccountController implements Initializable {
             if (!borrowerPassword1.equals(borrowerPassword2)) {
                 displayAlert("Passwords do not match!");
                 return;
+            }else if(borrowerPassword1.length() < 6){
+                displayAlert("Password is too short!!");
+                return;
             }
 
             // Check if the email already exists in the database
