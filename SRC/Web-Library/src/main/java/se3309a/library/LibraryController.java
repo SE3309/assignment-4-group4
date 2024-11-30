@@ -95,7 +95,7 @@ public class LibraryController implements Initializable {
 
 
     private int borrowerId;
-    public String DBPassword = "password";
+    public String DBPassword = "pass";
     public String ISBN;
 
 
