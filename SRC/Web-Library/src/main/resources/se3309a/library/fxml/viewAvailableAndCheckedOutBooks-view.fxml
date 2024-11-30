@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="mPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="422.0" prefWidth="850.0" style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.ViewAvailableAndCheckedOutBooksController">
+   <center>
+      <Pane prefHeight="419.0" prefWidth="876.0" BorderPane.alignment="CENTER">
+         <children>
+            <Text layoutX="543.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Checked-out Books">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Text>
+            <Text layoutX="144.0" layoutY="25.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available Books">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Text>
+            <TableView fx:id="availableBooksTable" layoutX="11.0" layoutY="38.423828125" prefHeight="300.0" prefWidth="403.0">
+              <columns>
+                <TableColumn fx:id="ISBN1Column" prefWidth="115.0" text="ISBN" />
+                <TableColumn fx:id="title1Column" prefWidth="287.0" text="Title" />
+              </columns>
+            </TableView>
+            <TableView fx:id="checkedOutBooksTable" layoutX="428.0" layoutY="38.423828125" prefHeight="300.0" prefWidth="403.0">
+               <columns>
+                  <TableColumn fx:id="ISBN2Column" prefWidth="115.0" text="ISBN" />
+                  <TableColumn fx:id="title2Column" prefWidth="286.9999694824219" text="Title" />
+               </columns>
+            </TableView>
+            <Button layoutX="383.0" layoutY="367.0" mnemonicParsing="false" onAction="#exit" prefHeight="26.0" prefWidth="62.0" text="OK">
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </Button>
+         </children>
+      </Pane>
+   </center>
+</BorderPane>

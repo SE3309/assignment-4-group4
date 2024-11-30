@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane fx:id="mPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="606.0" style="-fx-background-color: whitesmoke;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="se3309a.library.ViewUserBookInfoController">
+   <center>
+      <Pane BorderPane.alignment="CENTER">
+         <children>
+              <ComboBox fx:id="criteriaCombo" layoutX="19.0" layoutY="27.0" prefWidth="150.0" />
+              <Text layoutX="24.0" layoutY="18.05078125" strokeType="OUTSIDE" strokeWidth="0.0" text="Search By:" />
+              <TextField fx:id="searchField" layoutX="190.0" layoutY="27.0" prefHeight="26.0" prefWidth="221.0" />
+              <Label fx:id="emailOrNameLabel" layoutX="190.0" layoutY="1.0" prefHeight="23.0" prefWidth="221.0" />
+              <TableView fx:id="tableView" layoutX="19.0" layoutY="60.0" prefHeight="212.0" prefWidth="570.0">
+                  <columns>
+                      <TableColumn fx:id="idColumn" prefWidth="75.0" text="ID" />
+                      <TableColumn fx:id="nameColumn" prefWidth="146.0" text="Borrower Name" />
+                      <TableColumn fx:id="emailColumn" prefWidth="225.0" text="Borrower Email" />
+                      <TableColumn fx:id="numOfBooksBorrowedColumn" prefWidth="123.0" text="# of Books Borrowed" />
+                  </columns>
+              </TableView>
+              <Button fx:id="searchButton" layoutX="504.0" layoutY="30.0" mnemonicParsing="false" onAction="#search" text="search" />
+              <Button fx:id="viewBorrowingHistoryButton" layoutX="445.0" layoutY="282.0" mnemonicParsing="false" onAction="#viewUserBookHistory" text="view borrowing history " />
+            <TableView fx:id="tableView2" layoutX="19.0" layoutY="319.0" prefHeight="152.0" prefWidth="570.0">
+              <columns>
+                <TableColumn fx:id="bookISBN" prefWidth="97.0" text="ISBN" />
+                <TableColumn fx:id="bookTitleColumn" prefWidth="222.0" text="Book Title " />
+                  <TableColumn fx:id="borrowDateColumn" prefWidth="139.0" text="Borrow Date" />
+                  <TableColumn fx:id="returnDateColumn" prefWidth="110.0" text="Return Date " />
+              </columns>
+            </TableView>
+            <Label fx:id="userNameLabel" layoutX="100.0" layoutY="287.0" prefHeight="17.0" prefWidth="318.0" />
+            <Text layoutX="21.0" layoutY="287.05078125" strokeType="OUTSIDE" strokeWidth="0.0" text="User Selected:" />
+            <Button layoutX="269.0" layoutY="483.0" mnemonicParsing="false" onAction="#exit" prefHeight="26.0" prefWidth="54.0" text="OK" />
+         </children>
+      </Pane>
+   </center>
+</BorderPane>
